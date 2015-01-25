@@ -6,10 +6,9 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Net.Sockets;
-using StriveEngine.Core;
-using StriveEngine.Tcp.Passive;
 using System.Diagnostics;
 using System.Xml;
+using NNOldManNet;
 
 namespace StriveEngine.SimpleDemoClient
 {
@@ -20,9 +19,9 @@ namespace StriveEngine.SimpleDemoClient
 */
 public partial class Form1 : Form
 {
-    private ITcpPassiveEngine mNet;
+    private Client mNet;
     private string mClientIP = "127.0.0.1";
-    private int mPort = 9999;
+    private int mPort = 10000;
 
     ToolStripLabel mTS = new ToolStripLabel();
     //配置文件
@@ -61,94 +60,101 @@ public partial class Form1 : Form
             mCmds.Add ( cmd, node.Attributes["content"].Value );
         }
     }
-    private void button3_Click ( object sender, EventArgs e )
+    private void reContect()
     {
+        if ( mNet == null )
+        {
+            mNet = new Client();
+            mNet.mOnExpection += setState;
+            mNet.mOnReceiveMessage += onReceive;
+            mNet.mOnConnect += onConnect;
+        }
         try
         {
-            //初始化并启动客户端引擎（TCP、文本协议）
-            this.mNet = NetworkEngineFactory.CreateTextTcpPassiveEngine ( this.textBox_IP.Text, int.Parse ( this.textBox_port.Text ), new DefaultTextContractHelper ( "\0" ) );
-            this.mNet.MessageReceived += new CbDelegate<System.Net.IPEndPoint, byte[]> ( tcpPassiveEngine_MessageReceived );
-            this.mNet.AutoReconnect = true;//启动掉线自动重连
-            this.mNet.ConnectionInterrupted += new CbDelegate ( tcpPassiveEngine_ConnectionInterrupted );
-            this.mNet.ConnectionRebuildSucceed += new CbDelegate ( tcpPassiveEngine_ConnectionRebuildSucceed );
-            this.mNet.Initialize();
+            mNet.reconnect ( "127.0.0.1", mPort );
 
-            this.button_send.Enabled = true;
-            this.button_connect.Enabled = false;
 
-            setState ( "连接成功！" );
         }
-        catch ( Exception ee )
+        catch ( System.Exception e )
         {
-            MessageBox.Show ( ee.Message );
+            mNet.close();
+            MessageBox.Show ( e.Message );
         }
     }
 
-    void tcpPassiveEngine_ConnectionRebuildSucceed()
+    void onConnect ( bool sucessed, bool local )
     {
-        if ( this.InvokeRequired )
+        if ( this.button_send.InvokeRequired )
         {
-            this.BeginInvoke ( new CbDelegate ( this.tcpPassiveEngine_ConnectionInterrupted ) );
+            NNOldManNet.Client.OnConnect myCompare = new NNOldManNet.Client.OnConnect ( onConnect ); //代理实例化
+            this.textBox_recv.Invoke ( myCompare, sucessed, local );
         }
         else
         {
-            this.button_send.Enabled = true;
-            setState ( "重连成功。" );
-        }
-    }
-    void setState ( string state )
-    {
-        mTS.Text = state;
-    }
-    void tcpPassiveEngine_ConnectionInterrupted()
-    {
-        if ( this.InvokeRequired )
-        {
-            this.BeginInvoke ( new CbDelegate ( this.tcpPassiveEngine_ConnectionInterrupted ) );
-        }
-        else
-        {
-            this.button_send.Enabled = false;
-            setState ( "您已经掉线。" );
+            this.button_send.Enabled = sucessed;
+            this.button_connect.Enabled = !sucessed;
+            string st1 = sucessed ? "连接成功" : "断开连接！";
+            string st2 = local ? "(本地)" : "(远程)";
+            setState ( st1 + st2 );
         }
     }
 
-    void tcpPassiveEngine_MessageReceived ( System.Net.IPEndPoint serverIPE, byte[] bMsg )
+    void onReceive ( byte[] bmsg )
     {
-        string msg = System.Text.Encoding.UTF8.GetString ( bMsg ); //消息使用UTF-8编码
-        msg = msg.Substring ( 0, msg.Length - 1 ); //将结束标记"\0"剔除
-        this.ShowMessage ( msg );
-    }
-
-    private void ShowMessage ( string msg )
-    {
-        if ( this.InvokeRequired )
+        if ( this.textBox_recv.InvokeRequired )
         {
-            this.BeginInvoke ( new CbDelegate<string> ( this.ShowMessage ), msg );
+            NNOldManNet.Client.OnReceiveMessage myCompare = new NNOldManNet.Client.OnReceiveMessage ( onReceive ); //代理实例化
+            this.textBox_recv.Invoke ( myCompare, bmsg );
         }
         else
         {
-            mRecvMsgs += msg + "\r\n";
+            string smsg = System.Text.Encoding.UTF8.GetString ( bmsg );
+            mRecvMsgs = textBox_recv.Text + smsg + "\n\r\n";
             textBox_recv.Text = mRecvMsgs;
         }
     }
 
+    void onExpection ( string msg )
+    {
+        setState ( msg );
+    }
+    private void button3_Click ( object sender, EventArgs e )
+    {
+        reContect();
+    }
+    void setState ( string state )
+    {
+        if ( this.statusStrip1.InvokeRequired )
+        {
+            DebugInfo myCompare = new DebugInfo ( setState ); //代理实例化
+            this.statusStrip1.Invoke ( myCompare, state );
+        }
+        else
+        {
+            mTS.Text = state;
+        }
+    }
+    //void setState(string state)
+    //{
+    //    if (this.statusStrip1.InvokeRequired)
+    //    {
+    //        DebugInfo myCompare = new DebugInfo(setState); //代理实例化
+    //        this.statusStrip1.Invoke(myCompare, state);
+    //    }
+    //    else
+    //    {
+    //        mTS.Text = state;
+    //    }
+    //}
+
     private void button2_Click ( object sender, EventArgs e )
     {
-        string type = this.comboBox_cmd.SelectedItem.ToString();
-        string content = mCmds[type];
-        string msg = content + "\0";// "\0" 表示一个消息的结尾
-        byte[] bMsg = System.Text.Encoding.UTF8.GetBytes ( msg ); //消息使用UTF-8编码
-        this.mNet.SendMessageToServer ( bMsg );
-    }
-
-    private void textBox_msg_TextChanged ( object sender, EventArgs e )
-    {
-
-    }
-
-    private void Form1_Load ( object sender, EventArgs e )
-    {
+        if ( this.comboBox_cmd.SelectedItem != null )
+        {
+            string type = this.comboBox_cmd.SelectedItem.ToString();
+            string content = mCmds[type];
+            this.mNet.sendMsg ( content );
+        }
     }
 
     private void textBox1_TextChanged ( object sender, EventArgs e )

@@ -51,3 +51,13 @@ E:\0.work\06. demos\striveengine_1031\StriveEngine.SimpleDemo\StriveEngine.Simpl
 E:\0.work\06. demos\striveengine_1031\StriveEngine.SimpleDemo\StriveEngine.SimpleDemoClient\obj\x86\Debug\ResGen.write.1.tlog
 E:\0.work\06. demos\striveengine_1031\StriveEngine.SimpleDemo\StriveEngine.SimpleDemoClient\obj\x86\Debug\StriveEngine.SimpleDemoClient.exe
 E:\0.work\06. demos\striveengine_1031\StriveEngine.SimpleDemo\StriveEngine.SimpleDemoClient\obj\x86\Debug\StriveEngine.SimpleDemoClient.pdb
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\bin\Debug\StriveEngine.dll
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\bin\Debug\StriveEngine.xml
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\obj\x86\Debug\StriveEngine.SimpleDemoClient.csprojResolveAssemblyReference.cache
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\obj\x86\Debug\StriveEngine.SimpleDemoClient.Form1.resources
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\obj\x86\Debug\StriveEngine.SimpleDemoClient.csproj.GenerateResource.Cache
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\bin\Debug\SEClient.exe
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\bin\Debug\SEClient.pdb
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\obj\x86\Debug\SEClient.Properties.Resources.resources
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\obj\x86\Debug\SEClient.exe
+D:\work\cs_csharp\StriveEngine.SimpleDemoClient\obj\x86\Debug\SEClient.pdb

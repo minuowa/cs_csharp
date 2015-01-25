@@ -1,0 +1,6 @@
+D:\work\cs_csharp\NNOldManNet\bin\Debug\NNOldManNet.dll
+D:\work\cs_csharp\NNOldManNet\bin\Debug\NNOldManNet.pdb
+D:\work\cs_csharp\resources\NNOldManNet.dll
+D:\work\cs_csharp\resources\NNOldManNet.pdb
+D:\work\cs_csharp\NNOldManNet\obj\Debug\NNOldManNet.dll
+D:\work\cs_csharp\NNOldManNet\obj\Debug\NNOldManNet.pdb

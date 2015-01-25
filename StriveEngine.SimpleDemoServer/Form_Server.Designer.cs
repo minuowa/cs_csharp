@@ -1,6 +1,6 @@
 ﻿namespace StriveEngine.SimpleDemoServer
 {
-    partial class Form1
+    partial class Form_Server
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -206,14 +206,14 @@
             // toolStripLabel_event
             // 
             this.toolStripLabel_event.Name = "toolStripLabel_event";
-            this.toolStripLabel_event.Size = new System.Drawing.Size(18, 22);
+            this.toolStripLabel_event.Size = new System.Drawing.Size(17, 22);
             this.toolStripLabel_event.Text = "--";
             // 
             // toolStripLabel_clientCount
             // 
             this.toolStripLabel_clientCount.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripLabel_clientCount.Name = "toolStripLabel_clientCount";
-            this.toolStripLabel_clientCount.Size = new System.Drawing.Size(75, 22);
+            this.toolStripLabel_clientCount.Size = new System.Drawing.Size(74, 22);
             this.toolStripLabel_clientCount.Text = "在线数量：0";
             // 
             // Form1
@@ -227,11 +227,9 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox_port);
             this.Controls.Add(this.label1);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "StriveEngine Demo 服务端 （基于StriveEngine）";
+            this.Text = "SEServer";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);

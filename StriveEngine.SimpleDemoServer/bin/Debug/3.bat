@@ -1,1 +1,2 @@
 cmd >>build.txt
+exit()

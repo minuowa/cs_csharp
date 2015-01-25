@@ -37,16 +37,17 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.checkBox_autoScrollToButtom = new System.Windows.Forms.CheckBox();
             this.textBox_recv = new System.Windows.Forms.TextBox();
-            this.comboBox_cmd = new System.Windows.Forms.ComboBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.comboBox_cmd = new System.Windows.Forms.ComboBox();
             this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button_send
             // 
-            this.button_send.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_send.Enabled = false;
-            this.button_send.Location = new System.Drawing.Point(27, 62);
+            this.button_send.Location = new System.Drawing.Point(27, 56);
             this.button_send.Name = "button_send";
             this.button_send.Size = new System.Drawing.Size(75, 23);
             this.button_send.TabIndex = 4;
@@ -56,7 +57,7 @@
             // 
             // textBox_port
             // 
-            this.textBox_port.Location = new System.Drawing.Point(288, 14);
+            this.textBox_port.Location = new System.Drawing.Point(344, 19);
             this.textBox_port.Name = "textBox_port";
             this.textBox_port.Size = new System.Drawing.Size(100, 21);
             this.textBox_port.TabIndex = 7;
@@ -64,7 +65,7 @@
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(10, 14);
+            this.label1.Location = new System.Drawing.Point(6, 17);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(87, 23);
             this.label1.TabIndex = 6;
@@ -73,7 +74,7 @@
             // 
             // label4
             // 
-            this.label4.Location = new System.Drawing.Point(243, 13);
+            this.label4.Location = new System.Drawing.Point(287, 17);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(51, 23);
             this.label4.TabIndex = 6;
@@ -82,7 +83,7 @@
             // 
             // textBox_IP
             // 
-            this.textBox_IP.Location = new System.Drawing.Point(105, 14);
+            this.textBox_IP.Location = new System.Drawing.Point(99, 19);
             this.textBox_IP.Name = "textBox_IP";
             this.textBox_IP.Size = new System.Drawing.Size(132, 21);
             this.textBox_IP.TabIndex = 7;
@@ -90,7 +91,7 @@
             // 
             // button_connect
             // 
-            this.button_connect.Location = new System.Drawing.Point(394, 13);
+            this.button_connect.Location = new System.Drawing.Point(450, 17);
             this.button_connect.Name = "button_connect";
             this.button_connect.Size = new System.Drawing.Size(75, 23);
             this.button_connect.TabIndex = 8;
@@ -105,9 +106,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.checkBox_autoScrollToButtom);
             this.groupBox2.Controls.Add(this.textBox_recv);
-            this.groupBox2.Location = new System.Drawing.Point(14, 101);
+            this.groupBox2.Location = new System.Drawing.Point(14, 133);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1107, 372);
+            this.groupBox2.Size = new System.Drawing.Size(1124, 340);
             this.groupBox2.TabIndex = 9;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "来自服务端的消息";
@@ -117,7 +118,7 @@
             this.checkBox_autoScrollToButtom.AutoSize = true;
             this.checkBox_autoScrollToButtom.Checked = true;
             this.checkBox_autoScrollToButtom.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_autoScrollToButtom.Location = new System.Drawing.Point(13, 21);
+            this.checkBox_autoScrollToButtom.Location = new System.Drawing.Point(9, 21);
             this.checkBox_autoScrollToButtom.Name = "checkBox_autoScrollToButtom";
             this.checkBox_autoScrollToButtom.Size = new System.Drawing.Size(108, 16);
             this.checkBox_autoScrollToButtom.TabIndex = 1;
@@ -126,23 +127,17 @@
             // 
             // textBox_recv
             // 
-            this.textBox_recv.Location = new System.Drawing.Point(6, 42);
+            this.textBox_recv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_recv.Location = new System.Drawing.Point(6, 43);
             this.textBox_recv.MaxLength = 65535;
             this.textBox_recv.Multiline = true;
             this.textBox_recv.Name = "textBox_recv";
             this.textBox_recv.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_recv.Size = new System.Drawing.Size(1095, 317);
+            this.textBox_recv.Size = new System.Drawing.Size(1112, 294);
             this.textBox_recv.TabIndex = 0;
             this.textBox_recv.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // comboBox_cmd
-            // 
-            this.comboBox_cmd.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_cmd.FormattingEnabled = true;
-            this.comboBox_cmd.Location = new System.Drawing.Point(120, 64);
-            this.comboBox_cmd.Name = "comboBox_cmd";
-            this.comboBox_cmd.Size = new System.Drawing.Size(995, 20);
-            this.comboBox_cmd.TabIndex = 10;
             // 
             // statusStrip1
             // 
@@ -152,27 +147,51 @@
             this.statusStrip1.TabIndex = 11;
             this.statusStrip1.Text = "statusStrip1";
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.AutoSize = true;
+            this.groupBox1.Controls.Add(this.comboBox_cmd);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.textBox_IP);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.button_send);
+            this.groupBox1.Controls.Add(this.button_connect);
+            this.groupBox1.Controls.Add(this.textBox_port);
+            this.groupBox1.Location = new System.Drawing.Point(14, 12);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(1121, 99);
+            this.groupBox1.TabIndex = 12;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "本地";
+            // 
+            // comboBox_cmd
+            // 
+            this.comboBox_cmd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox_cmd.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_cmd.FormattingEnabled = true;
+            this.comboBox_cmd.Location = new System.Drawing.Point(108, 58);
+            this.comboBox_cmd.Name = "comboBox_cmd";
+            this.comboBox_cmd.Size = new System.Drawing.Size(1007, 20);
+            this.comboBox_cmd.TabIndex = 10;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1144, 522);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.comboBox_cmd);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.button_send);
-            this.Controls.Add(this.button_connect);
-            this.Controls.Add(this.textBox_IP);
-            this.Controls.Add(this.textBox_port);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label1);
-            this.MaximizeBox = false;
+            this.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::SEClient.Properties.Settings.Default, "SEClient", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "StriveEngine Demo 客户端 （基于StriveEngine）";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Text = global::SEClient.Properties.Settings.Default.SEClient;
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -189,8 +208,9 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox textBox_recv;
         private System.Windows.Forms.CheckBox checkBox_autoScrollToButtom;
-        private System.Windows.Forms.ComboBox comboBox_cmd;
         private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.ComboBox comboBox_cmd;
     }
 }
 

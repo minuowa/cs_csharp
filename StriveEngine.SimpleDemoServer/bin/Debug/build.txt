@@ -1,4 +1,13 @@
 Microsoft Windows [版本 6.1.7601]
 版权所有 (c) 2009 Microsoft Corporation。保留所有权利。
 
-C:\Users\plus5\Downloads\StriveEngine.SimpleDemo\StriveEngine.SimpleDemo\StriveEngine.SimpleDemoServer\bin\Debug>
+C:\Users\plus5\Downloads\StriveEngine.SimpleDemo\StriveEngine.SimpleDemo\StriveEngine.SimpleDemoServer\bin\Debug>Microsoft Windows [版本 6.2.9200]
+(c) 2012 Microsoft Corporation。保留所有权利。
+
+D:\work\cs_csharp\StriveEngine.SimpleDemoServer\bin\Debug>Microsoft Windows [版本 6.2.9200]
+(c) 2012 Microsoft Corporation。保留所有权利。
+
+D:\work\cs_csharp\StriveEngine.SimpleDemoServer\bin\Debug>Microsoft Windows [版本 6.2.9200]
+(c) 2012 Microsoft Corporation。保留所有权利。
+
+D:\work\cs_csharp\StriveEngine.SimpleDemoServer\bin\Debug>
