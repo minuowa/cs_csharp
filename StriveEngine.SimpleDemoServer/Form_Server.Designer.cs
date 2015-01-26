@@ -65,7 +65,7 @@
             this.textBox_port.Name = "textBox_port";
             this.textBox_port.Size = new System.Drawing.Size(100, 21);
             this.textBox_port.TabIndex = 1;
-            this.textBox_port.Text = "9000";
+            this.textBox_port.Text = "10000";
             // 
             // button1
             // 
@@ -94,15 +94,14 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(100, 68);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(880, 20);
+            this.comboBox1.Size = new System.Drawing.Size(286, 20);
             this.comboBox1.TabIndex = 3;
-            this.comboBox1.DropDown += new System.EventHandler(this.comboBox1_DropDown);
             // 
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(986, 66);
+            this.button2.Location = new System.Drawing.Point(392, 66);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 4;
@@ -121,7 +120,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, 70);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1067, 103);
+            this.groupBox1.Size = new System.Drawing.Size(473, 103);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "发送消息给客户端";
@@ -132,7 +131,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_msg.Location = new System.Drawing.Point(100, 32);
             this.textBox_msg.Name = "textBox_msg";
-            this.textBox_msg.Size = new System.Drawing.Size(961, 21);
+            this.textBox_msg.Size = new System.Drawing.Size(367, 21);
             this.textBox_msg.TabIndex = 5;
             this.textBox_msg.Text = "this is a StriveEngine demo";
             // 
@@ -153,7 +152,7 @@
             this.groupBox2.Controls.Add(this.listView1);
             this.groupBox2.Location = new System.Drawing.Point(12, 179);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1070, 342);
+            this.groupBox2.Size = new System.Drawing.Size(476, 342);
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "收到的消息";
@@ -170,7 +169,7 @@
             this.listView1.Location = new System.Drawing.Point(3, 17);
             this.listView1.Name = "listView1";
             this.listView1.ShowItemToolTips = true;
-            this.listView1.Size = new System.Drawing.Size(1064, 322);
+            this.listView1.Size = new System.Drawing.Size(470, 322);
             this.listView1.TabIndex = 10;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -199,35 +198,35 @@
             this.toolStripLabel_clientCount});
             this.toolStrip1.Location = new System.Drawing.Point(0, 534);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1092, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(498, 25);
             this.toolStrip1.TabIndex = 7;
             this.toolStrip1.Text = "toolStrip1";
             // 
             // toolStripLabel_event
             // 
             this.toolStripLabel_event.Name = "toolStripLabel_event";
-            this.toolStripLabel_event.Size = new System.Drawing.Size(17, 22);
+            this.toolStripLabel_event.Size = new System.Drawing.Size(18, 22);
             this.toolStripLabel_event.Text = "--";
             // 
             // toolStripLabel_clientCount
             // 
             this.toolStripLabel_clientCount.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripLabel_clientCount.Name = "toolStripLabel_clientCount";
-            this.toolStripLabel_clientCount.Size = new System.Drawing.Size(74, 22);
+            this.toolStripLabel_clientCount.Size = new System.Drawing.Size(75, 22);
             this.toolStripLabel_clientCount.Text = "在线数量：0";
             // 
-            // Form1
+            // Form_Server
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1092, 559);
+            this.ClientSize = new System.Drawing.Size(498, 559);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox_port);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "Form_Server";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SEServer";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);

@@ -17,21 +17,22 @@ namespace StriveEngine.SimpleDemoClient
 *
 * ESFramework 强悍的通信框架、P2P框架、群集平台。OMCS 简单易用的网络语音视频框架。MFile 语音视频录制组件。StriveEngine 轻量级的通信引擎。
 */
-public partial class Form1 : Form
+public partial class Form_Client : Form
 {
     private Client mNet;
     private string mClientIP = "127.0.0.1";
     private int mPort = 10000;
 
-    ToolStripLabel mTS = new ToolStripLabel();
     //配置文件
     private static string mConfigFile = "config.xml";
     private string mRecvMsgs;
     private Dictionary<string, string> mCmds = new Dictionary<string, string>();
-    public Form1()
+
+    ToolStripLabel mTS = new ToolStripLabel();
+    public Form_Client()
     {
-        InitializeComponent();
         loadConfig();
+        InitializeComponent();
         config();
     }
     public void loadConfig()
@@ -68,12 +69,12 @@ public partial class Form1 : Form
             mNet.mOnExpection += setState;
             mNet.mOnReceiveMessage += onReceive;
             mNet.mOnConnect += onConnect;
+            mNet.mOnDisconnectLocal += onDisconnect;
+            mNet.mOnDisconnectRemote += onDisconnect;
         }
         try
         {
-            mNet.reconnect ( "127.0.0.1", mPort );
-
-
+            mNet.reconnect ( mClientIP, mPort );
         }
         catch ( System.Exception e )
         {
@@ -82,20 +83,31 @@ public partial class Form1 : Form
         }
     }
 
-    void onConnect ( bool sucessed, bool local )
+    void onDisconnect()
+    {
+        if (this.button_send.InvokeRequired)
+        {
+            NNOldManNet.Client.OnDisconnectLocal myCompare = new NNOldManNet.Client.OnDisconnectLocal(onDisconnect); //代理实例化
+            this.textBox_recv.Invoke(myCompare);
+        }
+        else
+        {
+            this.button_send.Enabled = false;
+            this.button_connect.Enabled = true;
+        }
+    }
+
+    void onConnect ()
     {
         if ( this.button_send.InvokeRequired )
         {
             NNOldManNet.Client.OnConnect myCompare = new NNOldManNet.Client.OnConnect ( onConnect ); //代理实例化
-            this.textBox_recv.Invoke ( myCompare, sucessed, local );
+            this.textBox_recv.Invoke ( myCompare );
         }
         else
         {
-            this.button_send.Enabled = sucessed;
-            this.button_connect.Enabled = !sucessed;
-            string st1 = sucessed ? "连接成功" : "断开连接！";
-            string st2 = local ? "(本地)" : "(远程)";
-            setState ( st1 + st2 );
+            this.button_send.Enabled = true;
+            this.button_connect.Enabled = false;
         }
     }
 
@@ -109,7 +121,7 @@ public partial class Form1 : Form
         else
         {
             string smsg = System.Text.Encoding.UTF8.GetString ( bmsg );
-            mRecvMsgs = textBox_recv.Text + smsg + "\n\r\n";
+            mRecvMsgs = textBox_recv.Text + smsg + "\r\n";
             textBox_recv.Text = mRecvMsgs;
         }
     }
@@ -134,18 +146,6 @@ public partial class Form1 : Form
             mTS.Text = state;
         }
     }
-    //void setState(string state)
-    //{
-    //    if (this.statusStrip1.InvokeRequired)
-    //    {
-    //        DebugInfo myCompare = new DebugInfo(setState); //代理实例化
-    //        this.statusStrip1.Invoke(myCompare, state);
-    //    }
-    //    else
-    //    {
-    //        mTS.Text = state;
-    //    }
-    //}
 
     private void button2_Click ( object sender, EventArgs e )
     {

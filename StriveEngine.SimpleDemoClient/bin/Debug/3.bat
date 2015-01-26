@@ -1,1 +1,1 @@
-cmd >>build.txt
+python >>build.txt

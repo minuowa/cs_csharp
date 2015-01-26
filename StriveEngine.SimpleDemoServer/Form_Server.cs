@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Configuration;
 using NNOldManNet;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 namespace StriveEngine.SimpleDemoServer
 {
 /*
@@ -31,23 +32,24 @@ public partial class Form_Server : Form
     {
         mNet.close();
     }
+    private void configNet()
+    {
+        if (mNet == null)
+            mNet = new Server(int.Parse(this.textBox_port.Text));
+        mNet.mOnLogInfo += showInfo;
+        mNet.mOnReceiveMsg += onClientMsg;
+        mNet.mOnConnected += onConnected;
+        bool res = mNet.restart();
+
+        this.button1.Enabled = !res;
+        this.textBox_port.ReadOnly = true;
+        this.button2.Enabled = res;
+    }
     private void button1_Click ( object sender, EventArgs e )
     {
         try
         {
-            //初始化并启动服务端引擎（TCP、文本协议）
-            this.textBox_port.Text = "9999";
-            mNet = new Server();
-            mNet.mIP = "127.0.0.1";
-            mNet.mOnDebugInfo += showInfo;
-            mNet.mOnErrorInfo += showInfo;
-            mNet.mOnReceiveMsg += onClientMsg;
-            mNet.mOnConnected += onConnected;
-            mNet.restart();
-
-            this.button1.Enabled = false;
-            this.textBox_port.ReadOnly = true;
-            this.button2.Enabled = true;
+            configNet();
         }
         catch ( Exception ee )
         {
@@ -64,35 +66,32 @@ public partial class Form_Server : Form
         }
         else
         {
-            if (sucess)
+            if ( sucess )
             {
-                this.comboBox1.Items.Add(client.RemoteEndPoint.ToString());
+                this.comboBox1.Items.Add ( client.RemoteEndPoint.ToString() );
             }
             else
             {
-                this.comboBox1.Items.Remove(client.RemoteEndPoint.ToString());
-                string msg = string.Format("{0} 下线", client.RemoteEndPoint.ToString());
-                showInfo(msg);
+                foreach ( KeyValuePair<Process, Socket> p in mWorkProcess )
+                {
+                    if ( p.Value == client )
+                    {
+                        p.Key.OutputDataReceived -= onDataReceivedEventHandler;
+                        p.Key.ErrorDataReceived -= onDataReceivedEventHandler;
+                        p.Key.Exited -= process_Exited;
+                        if (!p.Key.HasExited)
+                            p.Key.Kill();
+                        mWorkProcess.Remove ( p.Key );
+                        break;
+                    }
+                }
+                this.comboBox1.Items.Remove ( client.RemoteEndPoint.ToString() );
+                string msg = string.Format ( "{0} 下线", client.RemoteEndPoint.ToString() );
+                showInfo ( msg );
             }
         }
     }
 
-    void onNetDebugInfo ( string msg )
-    {
-        throw new NotImplementedException();
-    }
-
-
-    void tcpServerEngine_ClientConnected ( System.Net.IPEndPoint ipe )
-    {
-        string msg = string.Format ( "{0} 上线", ipe );
-        this.showInfo ( msg );
-    }
-
-    void tcpServerEngine_ClientCountChanged ( int count )
-    {
-        this.ShowConnectionCount ( count );
-    }
 
     private void showInfo ( string msg )
     {
@@ -112,13 +111,13 @@ public partial class Form_Server : Form
         if ( this.listView1.InvokeRequired )
         {
             Server.ReceiveMsg myCompare = new Server.ReceiveMsg ( onClientMsg ); //代理实例化
-            this.listView1.Invoke(myCompare, client, msg);
+            this.listView1.Invoke ( myCompare, client, msg );
         }
         else
         {
-            string smsg = Encoding.UTF8.GetString(msg);
-            doWork(client, smsg);
-            ListViewItem item = new ListViewItem(new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), smsg });
+            string smsg = Encoding.UTF8.GetString ( msg );
+            doWork ( client, smsg );
+            ListViewItem item = new ListViewItem ( new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), smsg } );
             this.listView1.Items.Insert ( 0, item );
         }
     }
@@ -128,7 +127,7 @@ public partial class Form_Server : Form
         if ( mWorkProcess.ContainsKey ( process ) )
         {
             Socket client = mWorkProcess[process];
-            if ( this.mNet.IsClientOnline ( client ) && e.Data != null )
+            if ( this.mNet.isClientOnline ( client ) && e.Data != null )
             {
                 this.mNet.sendMsg ( client, e.Data );
             }
@@ -143,17 +142,12 @@ public partial class Form_Server : Form
             Process process = new Process();
 
             process.StartInfo.FileName = msg;
-
             process.StartInfo.UseShellExecute = false;   // 是否使用外壳程序
-
             process.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值
-
-            //startInfo.RedirectStandardInput = true;  // 重定向输入流
-
             process.StartInfo.RedirectStandardOutput = true;  //重定向输出流
-
             process.StartInfo.RedirectStandardError = true;  //重定向错误流
             process.EnableRaisingEvents = true;
+
             process.OutputDataReceived += onDataReceivedEventHandler;
             process.ErrorDataReceived += onDataReceivedEventHandler;
             process.Exited += process_Exited;
@@ -161,17 +155,22 @@ public partial class Form_Server : Form
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
+            var moduleList = process.Modules;
+            foreach (System.Diagnostics.ProcessModule module in moduleList)
+                Console.WriteLine(string.Format("{0}\n  URL:{1}\n  Version:{2}",
+                    module.ModuleName, module.FileName, module.FileVersionInfo.FileVersion));
+
             mWorkProcess.Add ( process, client );
         }
         catch ( System.Exception ex )
         {
-            //showInfo ( ex.Message );
+            showInfo(ex.Message);
         }
 
     }
     void sendMsgToClient ( Socket client, string msg )
     {
-        if ( client != null && this.mNet.IsClientOnline ( client ) )
+        if (this.mNet.isClientOnline ( client ) )
         {
             this.mNet.sendMsg ( client, msg );
         }
@@ -194,14 +193,7 @@ public partial class Form_Server : Form
         this.toolStripLabel_clientCount.Text = "在线数量： " + clientCount.ToString();
     }
 
-    private void comboBox1_DropDown ( object sender, EventArgs e )
-    {
-        if ( mNet != null )
-        {
-            //List<TcpClient> list = this.mNet.getClientList();
-            //this.comboBox1.DataSource = list;
-        }
-    }
+
 
     private void button2_Click ( object sender, EventArgs e )
     {
@@ -214,7 +206,7 @@ public partial class Form_Server : Form
                 return;
             }
 
-            if ( !this.mNet.IsClientOnline ( client ) )
+            if (!this.mNet.isClientOnline(client))
             {
                 MessageBox.Show ( "目标客户端不在线！" );
                 return;
@@ -248,10 +240,16 @@ public partial class Form_Server : Form
         if ( mNet != null )
         {
             mNet.close();
+            mNet = null;
             foreach ( KeyValuePair<Process, Socket> p in mWorkProcess )
             {
-                if ( !p.Key.HasExited )
+                if (!p.Key.HasExited)
+                {
+                    p.Key.OutputDataReceived -= onDataReceivedEventHandler;
+                    p.Key.ErrorDataReceived -= onDataReceivedEventHandler;
+                    p.Key.Exited -= process_Exited;
                     p.Key.Kill();
+                }
             }
         }
     }

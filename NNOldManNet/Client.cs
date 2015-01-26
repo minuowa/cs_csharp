@@ -12,25 +12,33 @@ namespace NNOldManNet
 public class Client
 {
     public delegate void OnReceiveMessage ( byte[] bmsg );
-    // 摘要:
-    //     连接返回
-    //
-    // 返回结果:
-    //     true,连接成功；false,连接失败
-    public delegate void OnConnect ( bool sucessed, bool local );
-    public delegate void OnLoseConnection();
+    public delegate void OnConnect ();
+    public delegate void OnDisconnectLocal();
+    public delegate void OnDisconnectRemote();
+    public delegate void OnOutOfReach();
+
     public event OnReceiveMessage mOnReceiveMessage;
 
     public event DebugInfo mOnExpection;
+
+    //连接成功
     public event OnConnect mOnConnect;
-    public event OnLoseConnection mOnLoseConnection;
+    //本地网络断开
+    public event OnDisconnectLocal mOnDisconnectLocal;
+    //远程网络断开
+    public event OnDisconnectRemote mOnDisconnectRemote;
+    //远程服务器未开启
+    public event OnOutOfReach mOnOutOfReach;
 
 
     private int mHeartTime = 0;
     private System.Timers.Timer mTimer;
 
-    public UInt32 mReceiveBufferLength = 8192;
+    public const UInt32 mReceiveBufferLength = 8192;
+    public byte[] mBuffer = new byte[mReceiveBufferLength];
+
     private Socket mNet;
+
     ~Client()
     {
         close();
@@ -70,13 +78,13 @@ public class Client
         }
 
     }
-    public  void TimerCallback ( object sender, ElapsedEventArgs e )
+    public  void onTimer ( object sender, ElapsedEventArgs e )
     {
         Int32 t = Environment.TickCount;
         if ( mHeartTime > 0 && Math.Abs ( t - mHeartTime ) >= Config.HART_BEAT_LIMIT )
         {
             close();
-            mOnConnect ( false, true );
+            mOnDisconnectLocal();
             return;
         }
         sendMsg ( Config.HART_BEAT );
@@ -85,26 +93,48 @@ public class Client
     {
         mHeartTime = Environment.TickCount;
     }
-    static byte[] buffer = new byte[1024];
+
     public void reconnect ( string ipa, int port )
     {
         try
         {
+            mOnExpection += onLogInfo;
+            mOnOutOfReach += onOutOfReach;
+            mOnDisconnectLocal += onDisconnectLocal;
+            mOnDisconnectRemote += onDisconnectRemote;
+            mOnConnect += onConnect;
             close();
             mNet = new Socket ( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-            mNet.Connect(ipa, port);
-            mNet.BeginReceive ( buffer, 0, buffer.Length, SocketFlags.None, onRecv, mNet );
+            mNet.Connect ( ipa, port );
+            mNet.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, mNet );
             mTimer = new System.Timers.Timer ( Config.HART_BEAT_PERIOD );
-            mTimer.Elapsed += new ElapsedEventHandler ( TimerCallback );
+            mTimer.Elapsed += new ElapsedEventHandler ( onTimer );
             mTimer.Start();
         }
         catch ( System.Exception ex )
         {
             mOnExpection ( ex.Message );
-            mOnConnect(false, true);
+            mOnOutOfReach();
             close();
         }
     }
+
+    void onConnect()
+    {
+        this.mOnExpection("连接成功！");
+    }
+
+    void onDisconnectRemote()
+    {
+        this.mOnExpection("与服务器断开连接！");
+    }
+
+    void onDisconnectLocal()
+    {
+        this.mOnExpection("本地连接断开！");
+    }
+
+
     public void onRecv ( IAsyncResult ar )
     {
         try
@@ -114,44 +144,50 @@ public class Client
             int length = 0;
             try
             {
-                length = socket.EndReceive(ar);
+                length = socket.EndReceive ( ar );
             }
             catch ( System.Exception ex )
             {
                 mOnExpection ( ex.Message );
-                mOnConnect ( false, false );
+                mOnDisconnectRemote();
                 close();
                 return;
             }
             byte[] bmsg = new byte[length];
-            Array.Copy ( buffer, bmsg, length );
+            Array.Copy ( mBuffer, bmsg, length );
             if ( length > 0 )
             {
                 if ( bmsg.Length == Config.HART_BEAT.Length && Config.HART_BEAT == Encoding.UTF8.GetString ( bmsg ) )
                 {
                     onHeartBeat();
                 }
-                else if (bmsg.Length == Config.SUCESS.Length && Config.SUCESS == Encoding.UTF8.GetString(bmsg))
+                else if ( bmsg.Length == Config.SUCESS.Length && Config.SUCESS == Encoding.UTF8.GetString ( bmsg ) )
                 {
-                    if (mOnConnect != null)
-                        mOnConnect(true, false);
+                    mOnConnect();
                 }
                 else
                 {
-                    mOnReceiveMessage(bmsg);
+                    mOnReceiveMessage ( bmsg );
                 }
             }
             else
             {
 
             }
-            mNet.BeginReceive ( buffer, 0, buffer.Length, SocketFlags.None, onRecv, mNet );
+            mNet.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, mNet );
         }
         catch ( Exception ex )
         {
             mOnExpection ( ex.Message );
         }
     }
-
+    private void onLogInfo(string info)
+    {
+        Console.WriteLine(info);
+    }
+    void onOutOfReach()
+    {
+        this.mOnExpection("服务器为开启！");
+    }
 }
 }

@@ -1,6 +1,6 @@
 ﻿namespace StriveEngine.SimpleDemoClient
 {
-    partial class Form1
+    partial class Form_Client
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -108,7 +108,7 @@
             this.groupBox2.Controls.Add(this.textBox_recv);
             this.groupBox2.Location = new System.Drawing.Point(14, 133);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(1124, 340);
+            this.groupBox2.Size = new System.Drawing.Size(774, 240);
             this.groupBox2.TabIndex = 9;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "来自服务端的消息";
@@ -135,15 +135,15 @@
             this.textBox_recv.Multiline = true;
             this.textBox_recv.Name = "textBox_recv";
             this.textBox_recv.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_recv.Size = new System.Drawing.Size(1112, 294);
+            this.textBox_recv.Size = new System.Drawing.Size(762, 194);
             this.textBox_recv.TabIndex = 0;
             this.textBox_recv.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // statusStrip1
             // 
-            this.statusStrip1.Location = new System.Drawing.Point(0, 500);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 400);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1144, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(794, 22);
             this.statusStrip1.TabIndex = 11;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -161,7 +161,7 @@
             this.groupBox1.Controls.Add(this.textBox_port);
             this.groupBox1.Location = new System.Drawing.Point(14, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1121, 99);
+            this.groupBox1.Size = new System.Drawing.Size(774, 99);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "本地";
@@ -173,19 +173,19 @@
             this.comboBox_cmd.FormattingEnabled = true;
             this.comboBox_cmd.Location = new System.Drawing.Point(108, 58);
             this.comboBox_cmd.Name = "comboBox_cmd";
-            this.comboBox_cmd.Size = new System.Drawing.Size(1007, 20);
+            this.comboBox_cmd.Size = new System.Drawing.Size(660, 20);
             this.comboBox_cmd.TabIndex = 10;
             // 
-            // Form1
+            // Form_Client
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1144, 522);
+            this.ClientSize = new System.Drawing.Size(794, 422);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox2);
             this.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::SEClient.Properties.Settings.Default, "SEClient", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.Name = "Form1";
+            this.Name = "Form_Client";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = global::SEClient.Properties.Settings.Default.SEClient;
             this.groupBox2.ResumeLayout(false);
