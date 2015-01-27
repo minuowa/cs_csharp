@@ -85,44 +85,49 @@ public partial class Form_Client : Form
 
     void onDisconnect()
     {
-        if (this.button_send.InvokeRequired)
+        if ( this.button_start.InvokeRequired )
         {
-            NNOldManNet.Client.OnDisconnectLocal myCompare = new NNOldManNet.Client.OnDisconnectLocal(onDisconnect); //代理实例化
-            this.textBox_recv.Invoke(myCompare);
+            NNOldManNet.Client.OnDisconnectLocal myCompare = new NNOldManNet.Client.OnDisconnectLocal ( onDisconnect ); //代理实例化
+            this.textBox_recv.Invoke ( myCompare );
         }
         else
         {
-            this.button_send.Enabled = false;
+            this.button_start.Enabled = false;
+            this.button_stop.Enabled = false;
             this.button_connect.Enabled = true;
         }
     }
 
     void onConnect ()
     {
-        if ( this.button_send.InvokeRequired )
+        if ( this.button_start.InvokeRequired )
         {
             NNOldManNet.Client.OnConnect myCompare = new NNOldManNet.Client.OnConnect ( onConnect ); //代理实例化
             this.textBox_recv.Invoke ( myCompare );
         }
         else
         {
-            this.button_send.Enabled = true;
+            this.button_start.Enabled = true;
+            this.button_stop.Enabled = true;
             this.button_connect.Enabled = false;
         }
     }
 
-    void onReceive ( byte[] bmsg )
+    void onReceive ( PKG pkg )
     {
         if ( this.textBox_recv.InvokeRequired )
         {
             NNOldManNet.Client.OnReceiveMessage myCompare = new NNOldManNet.Client.OnReceiveMessage ( onReceive ); //代理实例化
-            this.textBox_recv.Invoke ( myCompare, bmsg );
+            this.textBox_recv.Invoke ( myCompare, pkg );
         }
         else
         {
-            string smsg = System.Text.Encoding.UTF8.GetString ( bmsg );
-            mRecvMsgs = textBox_recv.Text + smsg + "\r\n";
-            textBox_recv.Text = mRecvMsgs;
+            if ( pkg.mType == PKGID.NormalOutPut )
+            {
+                string smsg = DateTime.Now.ToString() + " : " +  pkg.getDataString();
+                mRecvMsgs = textBox_recv.Text + smsg + "\r\n";
+                textBox_recv.Text = mRecvMsgs;
+            }
         }
     }
 
@@ -130,7 +135,7 @@ public partial class Form_Client : Form
     {
         setState ( msg );
     }
-    private void button3_Click ( object sender, EventArgs e )
+    private void button_connect_Click ( object sender, EventArgs e )
     {
         reContect();
     }
@@ -147,13 +152,13 @@ public partial class Form_Client : Form
         }
     }
 
-    private void button2_Click ( object sender, EventArgs e )
+    private void button_start_Click ( object sender, EventArgs e )
     {
         if ( this.comboBox_cmd.SelectedItem != null )
         {
             string type = this.comboBox_cmd.SelectedItem.ToString();
             string content = mCmds[type];
-            this.mNet.sendMsg ( content );
+            this.mNet.sendMsg ( new PKG ( PKGID.StartWork, content )  );
         }
     }
 
@@ -172,12 +177,23 @@ public partial class Form_Client : Form
         {
             comboBox_cmd.Items.Add ( cmd.Key );
         }
+        comboBox_cmd.SelectedIndex = 0;
         textBox_IP.Text = mClientIP;
         textBox_port.Text = string.Format ( "{0}", mPort );
         textBox_IP.Enabled = false;
         textBox_port.Enabled = false;
 
         statusStrip1.Items.Add ( mTS );
+    }
+
+    private void button_stop_Click ( object sender, EventArgs e )
+    {
+        if ( this.comboBox_cmd.SelectedItem != null )
+        {
+            string type = this.comboBox_cmd.SelectedItem.ToString();
+            string content = mCmds[type];
+            this.mNet.sendMsg ( new PKG ( PKGID.StopWork, content ) );
+        }
     }
 
 }

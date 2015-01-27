@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button_send = new System.Windows.Forms.Button();
+            this.button_start = new System.Windows.Forms.Button();
             this.textBox_port = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -40,20 +40,21 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.comboBox_cmd = new System.Windows.Forms.ComboBox();
+            this.button_stop = new System.Windows.Forms.Button();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button_send
             // 
-            this.button_send.Enabled = false;
-            this.button_send.Location = new System.Drawing.Point(27, 56);
-            this.button_send.Name = "button_send";
-            this.button_send.Size = new System.Drawing.Size(75, 23);
-            this.button_send.TabIndex = 4;
-            this.button_send.Text = "发送";
-            this.button_send.UseVisualStyleBackColor = true;
-            this.button_send.Click += new System.EventHandler(this.button2_Click);
+            this.button_start.Enabled = false;
+            this.button_start.Location = new System.Drawing.Point(5, 57);
+            this.button_start.Name = "button_send";
+            this.button_start.Size = new System.Drawing.Size(75, 23);
+            this.button_start.TabIndex = 4;
+            this.button_start.Text = "启动";
+            this.button_start.UseVisualStyleBackColor = true;
+            this.button_start.Click += new System.EventHandler(this.button_start_Click);
             // 
             // textBox_port
             // 
@@ -97,7 +98,7 @@
             this.button_connect.TabIndex = 8;
             this.button_connect.Text = "连接";
             this.button_connect.UseVisualStyleBackColor = true;
-            this.button_connect.Click += new System.EventHandler(this.button3_Click);
+            this.button_connect.Click += new System.EventHandler(this.button_connect_Click);
             // 
             // groupBox2
             // 
@@ -106,9 +107,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.checkBox_autoScrollToButtom);
             this.groupBox2.Controls.Add(this.textBox_recv);
-            this.groupBox2.Location = new System.Drawing.Point(14, 133);
+            this.groupBox2.Location = new System.Drawing.Point(14, 116);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(774, 240);
+            this.groupBox2.Size = new System.Drawing.Size(787, 281);
             this.groupBox2.TabIndex = 9;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "来自服务端的消息";
@@ -135,7 +136,7 @@
             this.textBox_recv.Multiline = true;
             this.textBox_recv.Name = "textBox_recv";
             this.textBox_recv.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_recv.Size = new System.Drawing.Size(762, 194);
+            this.textBox_recv.Size = new System.Drawing.Size(775, 235);
             this.textBox_recv.TabIndex = 0;
             this.textBox_recv.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
@@ -143,44 +144,57 @@
             // 
             this.statusStrip1.Location = new System.Drawing.Point(0, 400);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(794, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(807, 22);
             this.statusStrip1.TabIndex = 11;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.AutoSize = true;
+            this.groupBox1.Controls.Add(this.button_stop);
             this.groupBox1.Controls.Add(this.comboBox_cmd);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.textBox_IP);
             this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Controls.Add(this.button_send);
+            this.groupBox1.Controls.Add(this.button_start);
             this.groupBox1.Controls.Add(this.button_connect);
             this.groupBox1.Controls.Add(this.textBox_port);
-            this.groupBox1.Location = new System.Drawing.Point(14, 12);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(774, 99);
+            this.groupBox1.Size = new System.Drawing.Size(807, 100);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "本地";
             // 
             // comboBox_cmd
             // 
-            this.comboBox_cmd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox_cmd.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_cmd.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_cmd.FormattingEnabled = true;
-            this.comboBox_cmd.Location = new System.Drawing.Point(108, 58);
+            this.comboBox_cmd.Location = new System.Drawing.Point(167, 58);
             this.comboBox_cmd.Name = "comboBox_cmd";
-            this.comboBox_cmd.Size = new System.Drawing.Size(660, 20);
+            this.comboBox_cmd.Size = new System.Drawing.Size(628, 20);
             this.comboBox_cmd.TabIndex = 10;
+            // 
+            // button1
+            // 
+            this.button_stop.Enabled = false;
+            this.button_stop.Location = new System.Drawing.Point(86, 57);
+            this.button_stop.Name = "button1";
+            this.button_stop.Size = new System.Drawing.Size(75, 23);
+            this.button_stop.TabIndex = 11;
+            this.button_stop.Text = "终止";
+            this.button_stop.UseVisualStyleBackColor = true;
+            this.button_stop.Click += new System.EventHandler(this.button_stop_Click);
             // 
             // Form_Client
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(794, 422);
+            this.ClientSize = new System.Drawing.Size(807, 422);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox2);
@@ -199,7 +213,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button_send;
+        private System.Windows.Forms.Button button_start;
         private System.Windows.Forms.TextBox textBox_port;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label4;
@@ -211,6 +225,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ComboBox comboBox_cmd;
+        private System.Windows.Forms.Button button_stop;
     }
 }
 

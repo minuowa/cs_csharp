@@ -11,7 +11,7 @@ namespace NNOldManNet
 
 public class Client
 {
-    public delegate void OnReceiveMessage ( byte[] bmsg );
+    public delegate void OnReceiveMessage ( PKG pkg );
     public delegate void OnConnect ();
     public delegate void OnDisconnectLocal();
     public delegate void OnDisconnectRemote();
@@ -58,12 +58,16 @@ public class Client
             mTimer = null;
         }
     }
-    public void sendMsg ( string smsg )
+    public void sendMsg ( PKG pkg )
     {
-        byte[] bmsg = System.Text.Encoding.UTF8.GetBytes ( smsg );
+        sendMsg ( pkg.getBuffer() );
+    }
+    private void sendMsg ( string smsg )
+    {
+        byte[] bmsg = System.Text.Encoding.Unicode.GetBytes ( smsg );
         sendMsg ( bmsg );
     }
-    public void sendMsg ( byte[] bmsg )
+    private void sendMsg(byte[] bmsg)
     {
         try
         {
@@ -81,13 +85,15 @@ public class Client
     public  void onTimer ( object sender, ElapsedEventArgs e )
     {
         Int32 t = Environment.TickCount;
-        if ( mHeartTime > 0 && Math.Abs ( t - mHeartTime ) >= Config.HART_BEAT_LIMIT )
+        if ( mHeartTime > 0 && Math.Abs ( t - mHeartTime ) >= Config.HEART_BEAT_LIMIT )
         {
             close();
             mOnDisconnectLocal();
             return;
         }
-        sendMsg ( Config.HART_BEAT );
+        PKG pkg = new PKG ( PKGID.HeartBeat );
+        sendMsg ( pkg );
+        //sendMsg ( Config.HEART_BEAT );
     }
     public void onHeartBeat()
     {
@@ -107,7 +113,7 @@ public class Client
             mNet = new Socket ( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
             mNet.Connect ( ipa, port );
             mNet.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, mNet );
-            mTimer = new System.Timers.Timer ( Config.HART_BEAT_PERIOD );
+            mTimer = new System.Timers.Timer ( Config.HEART_BEAT_PERIOD );
             mTimer.Elapsed += new ElapsedEventHandler ( onTimer );
             mTimer.Start();
         }
@@ -121,20 +127,40 @@ public class Client
 
     void onConnect()
     {
-        this.mOnExpection("连接成功！");
+        this.mOnExpection ( "连接成功！" );
     }
 
     void onDisconnectRemote()
     {
-        this.mOnExpection("与服务器断开连接！");
+        this.mOnExpection ( "与服务器断开连接！" );
     }
 
     void onDisconnectLocal()
     {
-        this.mOnExpection("本地连接断开！");
+        this.mOnExpection ( "本地连接断开！" );
     }
 
-
+    private void processPKG(PKG pkg)
+    {
+        switch (pkg.mType)
+        {
+            case PKGID.HeartBeat:
+                {
+                    onHeartBeat();
+                }
+                break;
+            case PKGID.ConnectSuccessed:
+                {
+                    mOnConnect();
+                }
+                break;
+            default:
+                {
+                    mOnReceiveMessage(pkg);
+                }
+                break;
+        }
+    }
     public void onRecv ( IAsyncResult ar )
     {
         try
@@ -157,18 +183,8 @@ public class Client
             Array.Copy ( mBuffer, bmsg, length );
             if ( length > 0 )
             {
-                if ( bmsg.Length == Config.HART_BEAT.Length && Config.HART_BEAT == Encoding.UTF8.GetString ( bmsg ) )
-                {
-                    onHeartBeat();
-                }
-                else if ( bmsg.Length == Config.SUCESS.Length && Config.SUCESS == Encoding.UTF8.GetString ( bmsg ) )
-                {
-                    mOnConnect();
-                }
-                else
-                {
-                    mOnReceiveMessage ( bmsg );
-                }
+                PKG pkg = PKG.parser(bmsg);
+                processPKG(pkg);
             }
             else
             {
@@ -181,13 +197,13 @@ public class Client
             mOnExpection ( ex.Message );
         }
     }
-    private void onLogInfo(string info)
+    private void onLogInfo ( string info )
     {
-        Console.WriteLine(info);
+        Console.WriteLine ( info );
     }
     void onOutOfReach()
     {
-        this.mOnExpection("服务器为开启！");
+        this.mOnExpection ( "服务器尚未开启！" );
     }
 }
 }

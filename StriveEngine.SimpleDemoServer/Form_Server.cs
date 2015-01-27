@@ -22,7 +22,7 @@ namespace StriveEngine.SimpleDemoServer
 public partial class Form_Server : Form
 {
     private Server mNet;
-    private Dictionary<Process, Socket> mWorkProcess;
+    private List<Process> mProcessPool;
     public Form_Server()
     {
         InitializeComponent();
@@ -34,10 +34,10 @@ public partial class Form_Server : Form
     }
     private void configNet()
     {
-        if (mNet == null)
-            mNet = new Server(int.Parse(this.textBox_port.Text));
+        if ( mNet == null )
+            mNet = new Server ( int.Parse ( this.textBox_port.Text ) );
         mNet.mOnLogInfo += showInfo;
-        mNet.mOnReceiveMsg += onClientMsg;
+        mNet.mOnReceiveMsg += processPKG;
         mNet.mOnConnected += onConnected;
         bool res = mNet.restart();
 
@@ -72,19 +72,18 @@ public partial class Form_Server : Form
             }
             else
             {
-                foreach ( KeyValuePair<Process, Socket> p in mWorkProcess )
-                {
-                    if ( p.Value == client )
-                    {
-                        p.Key.OutputDataReceived -= onDataReceivedEventHandler;
-                        p.Key.ErrorDataReceived -= onDataReceivedEventHandler;
-                        p.Key.Exited -= process_Exited;
-                        if (!p.Key.HasExited)
-                            p.Key.Kill();
-                        mWorkProcess.Remove ( p.Key );
-                        break;
-                    }
-                }
+                //foreach ( Process p in mProcessPool )
+                //{
+                //    {
+                //        p.OutputDataReceived -= onDataReceivedEventHandler;
+                //        p.ErrorDataReceived -= onDataReceivedEventHandler;
+                //        p.Exited -= process_Exited;
+                //        if ( !p.HasExited )
+                //            p.Kill();
+                //        mProcessPool.Remove ( p );
+                //        break;
+                //    }
+                //}
                 this.comboBox1.Items.Remove ( client.RemoteEndPoint.ToString() );
                 string msg = string.Format ( "{0} 下线", client.RemoteEndPoint.ToString() );
                 showInfo ( msg );
@@ -105,38 +104,91 @@ public partial class Form_Server : Form
             this.toolStripLabel_event.Text = msg;
         }
     }
-
-    private void onClientMsg ( Socket client, byte[] msg )
+    private void processPKG ( Socket client, PKG pkg )
     {
-        if ( this.listView1.InvokeRequired )
+        switch ( pkg.mType )
         {
-            Server.ReceiveMsg myCompare = new Server.ReceiveMsg ( onClientMsg ); //代理实例化
-            this.listView1.Invoke ( myCompare, client, msg );
+        case PKGID.StartWork:
+        {
+            onStartWorkMsg ( client, pkg );
+        }
+        break;
+        case PKGID.StopWork:
+        {
+            onStopWorkMsg ( client, pkg );
+        }
+        break;
+        }
+    }
+    private void onStartWorkMsg ( Socket client, PKG pkg )
+    {
+
+        if (this.listView1.InvokeRequired)
+        {
+            Server.ReceiveMsg myCompare = new Server.ReceiveMsg ( onStartWorkMsg ); //代理实例化
+            this.listView1.Invoke ( myCompare, client, pkg );
         }
         else
         {
-            string smsg = Encoding.UTF8.GetString ( msg );
-            doWork ( client, smsg );
-            ListViewItem item = new ListViewItem ( new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), smsg } );
+            doWork(client, pkg.getDataString());
+            ListViewItem item = new ListViewItem(new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), pkg.getDataString() });
             this.listView1.Items.Insert ( 0, item );
         }
     }
-    public void onDataReceivedEventHandler ( object sender, DataReceivedEventArgs e )
+    private void onStopWorkMsg ( Socket client, PKG pkg )
     {
-        Process process = ( Process ) sender;
-        if ( mWorkProcess.ContainsKey ( process ) )
+        PKG retpkg = new PKG ( PKGID.NormalOutPut );
+        string sout = null;
+        foreach ( Process p in mProcessPool )
         {
-            Socket client = mWorkProcess[process];
-            if ( this.mNet.isClientOnline ( client ) && e.Data != null )
+            if ( p.StartInfo.FileName == pkg.getDataString() )
             {
-                this.mNet.sendMsg ( client, e.Data );
+                if ( !p.HasExited )
+                {
+                    p.Refresh();
+                    p.Kill();
+                }
+                sout = string.Format ( "{0} Exit!", p.StartInfo.FileName );
+                retpkg.setData ( sout );
+                this.mNet.sendMsg ( client, retpkg );
+                mProcessPool.Remove ( p );
+                return;
             }
         }
+        sout = string.Format ( "{0} Exit!", pkg.getDataString() );
+        retpkg.setData ( sout );
+        this.mNet.sendMsg ( client, retpkg );
+    }
+    public void onDataReceivedEventHandler ( object sender, DataReceivedEventArgs e )
+    {
+        if ( e.Data != null )
+        {
+            mNet.broadcast ( new PKG ( PKGID.NormalOutPut, e.Data ) );
+        }
+        //Process process = ( Process ) sender;
+        //if ( mWorkProcess.ContainsKey ( process ) )
+        //{
+        //    Socket client = mWorkProcess[process];
+        //    if ( this.mNet.isClientOnline ( client ) && e.Data != null )
+        //    {
+        //        this.mNet.sendMsg ( client, e.Data );
+        //    }
+        //}
     }
     private void doWork ( Socket client, string msg )
     {
         if ( msg.Length == 0 )
             return;
+
+        foreach ( Process p in mProcessPool )
+        {
+            if ( p.StartInfo.FileName == msg )
+            {
+                sendMsgToClient ( client, "任务正在进行！" );
+                return;
+            }
+        }
+
         try
         {
             Process process = new Process();
@@ -156,36 +208,39 @@ public partial class Form_Server : Form
             process.BeginErrorReadLine();
 
             var moduleList = process.Modules;
-            foreach (System.Diagnostics.ProcessModule module in moduleList)
-                Console.WriteLine(string.Format("{0}\n  URL:{1}\n  Version:{2}",
-                    module.ModuleName, module.FileName, module.FileVersionInfo.FileVersion));
+            foreach ( System.Diagnostics.ProcessModule module in moduleList )
+            Console.WriteLine ( string.Format ( "{0}\n  URL:{1}\n  Version:{2}",
+                                                module.ModuleName, module.FileName, module.FileVersionInfo.FileVersion ) );
 
-            mWorkProcess.Add ( process, client );
+            mProcessPool.Add ( process );
         }
         catch ( System.Exception ex )
         {
-            showInfo(ex.Message);
+            showInfo ( ex.Message );
         }
 
     }
     void sendMsgToClient ( Socket client, string msg )
     {
-        if (this.mNet.isClientOnline ( client ) )
+        if ( this.mNet.isClientOnline ( client ) )
         {
-            this.mNet.sendMsg ( client, msg );
+            PKG pkg = new PKG ( PKGID.NormalOutPut );
+            pkg.setData ( msg );
+            this.mNet.sendMsg ( client, pkg );
         }
     }
     void process_Exited ( object sender, EventArgs e )
     {
         Process process = ( Process ) sender;
-        if ( mWorkProcess.ContainsKey ( process ) )
+        if ( mProcessPool.Contains ( process ) )
         {
-            Socket client = mWorkProcess[process];
+            //Socket client = mProcessPool[process];
             string msg = string.Format ( "{0} :Exit code ( {1} )", process.StartInfo.FileName
                                          , process.ExitCode
                                        );
-            sendMsgToClient ( client, msg );
-            mWorkProcess.Remove ( process );
+            //sendMsgToClient ( client, msg );
+            mNet.broadcast ( new PKG ( PKGID.NormalOutPut, msg ) );
+            mProcessPool.Remove ( process );
         }
     }
     private void ShowConnectionCount ( int clientCount )
@@ -206,13 +261,14 @@ public partial class Form_Server : Form
                 return;
             }
 
-            if (!this.mNet.isClientOnline(client))
+            if ( !this.mNet.isClientOnline ( client ) )
             {
                 MessageBox.Show ( "目标客户端不在线！" );
                 return;
             }
-
-            this.mNet.sendMsg ( client, this.textBox_msg.Text );
+            PKG pkg = new PKG ( PKGID.NormalOutPut );
+            pkg.setData ( this.textBox_msg.Text );
+            this.mNet.sendMsg ( client, pkg );
         }
         catch ( Exception ee )
         {
@@ -228,7 +284,7 @@ public partial class Form_Server : Form
 
     private void InitData()
     {
-        mWorkProcess = new Dictionary<Process, Socket>();
+        mProcessPool = new List<Process>();
     }
 
     private void Form1_Load ( object sender, EventArgs e )
@@ -241,14 +297,14 @@ public partial class Form_Server : Form
         {
             mNet.close();
             mNet = null;
-            foreach ( KeyValuePair<Process, Socket> p in mWorkProcess )
+            foreach ( Process p in mProcessPool )
             {
-                if (!p.Key.HasExited)
+                if ( !p.HasExited )
                 {
-                    p.Key.OutputDataReceived -= onDataReceivedEventHandler;
-                    p.Key.ErrorDataReceived -= onDataReceivedEventHandler;
-                    p.Key.Exited -= process_Exited;
-                    p.Key.Kill();
+                    p.OutputDataReceived -= onDataReceivedEventHandler;
+                    p.ErrorDataReceived -= onDataReceivedEventHandler;
+                    p.Exited -= process_Exited;
+                    p.Kill();
                 }
             }
         }

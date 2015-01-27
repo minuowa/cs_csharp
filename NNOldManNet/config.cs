@@ -8,9 +8,9 @@ namespace NNOldManNet
     class Config
     {
         public const string SUCESS = "%^";
-        public const string HART_BEAT = "!@#$";
-        public  const int HART_BEAT_PERIOD = 3000;
-        public  const int HART_BEAT_PERIOD_FLOAT = 1000;
-        public  const int HART_BEAT_LIMIT = HART_BEAT_PERIOD + HART_BEAT_PERIOD_FLOAT;
+        public const string HEART_BEAT = "!@#$";
+        public  const int HEART_BEAT_PERIOD = 2000000;
+        public const int HEART_BEAT_PERIOD_FLOAT = 1000000;
+        public  const int HEART_BEAT_LIMIT = HEART_BEAT_PERIOD + HEART_BEAT_PERIOD_FLOAT;
     }
 }

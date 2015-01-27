@@ -15,11 +15,10 @@ public class HeartBeatInfo
 {
     public int mHeartTime = 0;
     public TcpClient mClient = null;
-    public bool mInvalid = false;
 };
 public class Server
 {
-    public delegate void ReceiveMsg ( Socket client, byte[] msg );
+    public delegate void ReceiveMsg ( Socket client, PKG msg );
     public delegate void OnConnected ( Socket client, bool sucess );
 
     public event DebugInfo mOnLogInfo;
@@ -29,7 +28,6 @@ public class Server
     Dictionary<Socket, HeartBeatInfo> mClientPools;
 
     public Socket mListner;
-    private string mIP = "localhost";
     private int mPort = 10000;
     static byte[] mBuffer = new byte[8192];
 
@@ -66,23 +64,24 @@ public class Server
             HeartBeatInfo info = pair.Value;
             if ( client.Connected )
             {
-                if ( info.mHeartTime > 0 && Math.Abs ( t - info.mHeartTime ) >= Config.HART_BEAT_LIMIT )
+                if ( info.mHeartTime > 0 && Math.Abs ( t - info.mHeartTime ) >= Config.HEART_BEAT_LIMIT )
                 {
-                    info.mInvalid = true;
                     mOnConnected ( client , false );
                 }
                 else
                 {
-                    sendMsg ( client, Config.HART_BEAT );
+                    sendHeartBeat ( client );
                     newPool.Add ( client, info );
                 }
             }
-            else
-            {
-                info.mInvalid = true;
-            }
         }
         mClientPools = newPool;
+    }
+    private void sendHeartBeat ( Socket client )
+    {
+        //sendMsg ( client, Config.HEART_BEAT );
+        PKG pkg = new PKG ( PKGID.HeartBeat );
+        sendMsg ( client, pkg );
     }
     public void close()
     {
@@ -102,10 +101,10 @@ public class Server
                 mClientPools = new Dictionary<Socket, HeartBeatInfo>();
                 mListner = new Socket ( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
                 //mListner.Bind(new IPEndPoint(IPAddress.Parse(mIP), mPort));
-                mListner.Bind(new IPEndPoint(IPAddress.Any, mPort));
+                mListner.Bind ( new IPEndPoint ( IPAddress.Any, mPort ) );
                 mListner.Listen ( 2000 );
                 mListner.BeginAccept ( onAccept, mListner );
-                mTimer = new System.Timers.Timer ( Config.HART_BEAT_PERIOD );
+                mTimer = new System.Timers.Timer ( Config.HEART_BEAT_PERIOD );
                 mTimer.Elapsed += new ElapsedEventHandler ( onTimer );
                 mTimer.Start();
                 mOnLogInfo ( "Start Success!" );
@@ -119,6 +118,22 @@ public class Server
         }
         return true;
     }
+    private void processPKG ( Socket socket, PKG pkg )
+    {
+        switch ( pkg.mType )
+        {
+        case PKGID.HeartBeat:
+        {
+            onHeartBeat ( socket );
+        }
+        break;
+        default:
+        {
+            mOnReceiveMsg ( socket, pkg );
+        }
+        break;
+        }
+    }
     public void onRecv ( IAsyncResult ar )
     {
         Socket socket = ( Socket ) ar.AsyncState;
@@ -130,14 +145,8 @@ public class Server
             {
                 byte[] bmsg = new byte[length];
                 Array.Copy ( mBuffer, bmsg, length );
-                if ( bmsg.Length == Config.HART_BEAT.Length && Config.HART_BEAT == Encoding.UTF8.GetString ( bmsg ) )
-                {
-                    onHeartBeat ( socket );
-                }
-                else
-                {
-                    mOnReceiveMsg ( socket, bmsg );
-                }
+                PKG pkg = PKG.parser ( bmsg );
+                processPKG ( socket, pkg );
             }
             socket.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, socket );
 
@@ -175,27 +184,51 @@ public class Server
                 }
             }
             client.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, client );
-            sendMsg ( client, Encoding.UTF8.GetBytes ( Config.SUCESS ) );
+            PKG pkg = new PKG ( PKGID.ConnectSuccessed );
+            pkg.setData ( Config.SUCESS );
+            sendMsg ( client, pkg );
+            //sendMsg ( client,Config.SUCESS  );
         }
         if ( mListner != null )
             mListner.BeginAccept ( onAccept, mListner );
     }
-    public void sendMsg ( Socket client, byte[] msg )
+    private void sendMsg ( Socket client, byte[] msg )
     {
-        try
+        if ( !client.Connected )
+            return;
+        client.Send ( msg );
+        //try
+        //{
+        //client.Send(msg);
+        //}
+        //catch ( Exception ex )
+        //{
+        //    mOnConnected ( client, false );
+        //}
+    }
+    public void broadcast ( PKG pkg )
+    {
+        foreach ( KeyValuePair<Socket, HeartBeatInfo> p in mClientPools )
         {
-            client.Send ( msg );
-        }
-        catch ( Exception ex )
-        {
-            mOnConnected ( client, false );
+            sendMsg ( p.Key, pkg.getBuffer() );
         }
     }
-    public void sendMsg ( Socket client, string msg )
+    private void broadcast ( string msg )
+    {
+        foreach ( KeyValuePair<Socket, HeartBeatInfo> p in mClientPools )
+        {
+            sendMsg ( p.Key, msg );
+        }
+    }
+    public void sendMsg ( Socket client, PKG pkg )
+    {
+        sendMsg ( client, pkg.getBuffer() );
+    }
+    private void sendMsg(Socket client, string msg)
     {
         if ( client != null )
         {
-            byte[] bMsg = System.Text.Encoding.UTF8.GetBytes ( msg ); //消息使用UTF-8编码
+            byte[] bMsg = System.Text.Encoding.Unicode.GetBytes ( msg ); //消息使用UTF-8编码
             sendMsg ( client, bMsg );
         }
     }
