@@ -27,9 +27,10 @@ public class Server
 
     Dictionary<Socket, HeartBeatInfo> mClientPools;
 
-    public Socket mListner;
+    private Socket mListner;
     private int mPort = 10000;
     static byte[] mBuffer = new byte[8192];
+    static byte[] mTail = null;
 
     private System.Timers.Timer mTimer;
 
@@ -54,7 +55,7 @@ public class Server
             return false;
         return mClientPools.ContainsKey ( client );
     }
-    public  void onTimer ( object sender, ElapsedEventArgs e )
+    private void onTimer(object sender, ElapsedEventArgs e)
     {
         Int32 t = Environment.TickCount;
         Dictionary<Socket, HeartBeatInfo> newPool = new Dictionary<Socket, HeartBeatInfo>();
@@ -134,7 +135,7 @@ public class Server
         break;
         }
     }
-    public void onRecv ( IAsyncResult ar )
+    private void onRecv(IAsyncResult ar)
     {
         Socket socket = ( Socket ) ar.AsyncState;
         int length = 0;
@@ -145,8 +146,11 @@ public class Server
             {
                 byte[] bmsg = new byte[length];
                 Array.Copy ( mBuffer, bmsg, length );
-                PKG pkg = PKG.parser ( bmsg );
-                processPKG ( socket, pkg );
+                PKGResult res = PKG.parser(mTail, bmsg);
+                List<PKG> pkgList = res.mPKGList;
+                mTail = res.mTail;
+                foreach (PKG pkg in pkgList)
+                    processPKG(socket,pkg);
             }
             socket.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, socket );
 
@@ -196,15 +200,14 @@ public class Server
     {
         if ( !client.Connected )
             return;
-        client.Send ( msg );
-        //try
-        //{
-        //client.Send(msg);
-        //}
-        //catch ( Exception ex )
-        //{
-        //    mOnConnected ( client, false );
-        //}
+        try
+        {
+            client.Send ( msg );
+        }
+        catch ( Exception ex )
+        {
+            //mOnConnected(client, false);
+        }
     }
     public void broadcast ( PKG pkg )
     {
@@ -224,11 +227,11 @@ public class Server
     {
         sendMsg ( client, pkg.getBuffer() );
     }
-    private void sendMsg(Socket client, string msg)
+    private void sendMsg ( Socket client, string msg )
     {
         if ( client != null )
         {
-            byte[] bMsg = System.Text.Encoding.Unicode.GetBytes ( msg ); //消息使用UTF-8编码
+            byte[] bMsg = Config.Encodinger.GetBytes ( msg ); //消息使用UTF-8编码
             sendMsg ( client, bMsg );
         }
     }

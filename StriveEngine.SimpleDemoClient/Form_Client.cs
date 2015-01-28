@@ -12,11 +12,6 @@ using NNOldManNet;
 
 namespace StriveEngine.SimpleDemoClient
 {
-/*
-* 更多实用组件请访问 www.oraycn.com 或 QQ：168757008。
-*
-* ESFramework 强悍的通信框架、P2P框架、群集平台。OMCS 简单易用的网络语音视频框架。MFile 语音视频录制组件。StriveEngine 轻量级的通信引擎。
-*/
 public partial class Form_Client : Form
 {
     private Client mNet;

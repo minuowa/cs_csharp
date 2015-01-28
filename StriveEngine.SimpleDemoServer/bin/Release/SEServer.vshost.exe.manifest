@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="NNOldManNet.dll" size="14336">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="NNOldManNet.dll" size="14848">
       <assemblyIdentity name="NNOldManNet" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>HflZJql5DYwJbBCAtdgB/oea7XQ=</dsig:DigestValue>
+        <dsig:DigestValue>fMz2knV+32koxnAgqz/B8UVuS1g=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -61,7 +61,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>vJA06PUiYkKF7Ze/ak8XN+0qoX4=</dsig:DigestValue>
+        <dsig:DigestValue>m/UF5FWGlmSoyL7bqsDIOK+qauk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

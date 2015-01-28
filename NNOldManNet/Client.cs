@@ -35,7 +35,8 @@ public class Client
     private System.Timers.Timer mTimer;
 
     public const UInt32 mReceiveBufferLength = 8192;
-    public byte[] mBuffer = new byte[mReceiveBufferLength];
+    private byte[] mBuffer = new byte[mReceiveBufferLength];
+    private byte[] mTail = null;
 
     private Socket mNet;
 
@@ -64,10 +65,10 @@ public class Client
     }
     private void sendMsg ( string smsg )
     {
-        byte[] bmsg = System.Text.Encoding.Unicode.GetBytes ( smsg );
+        byte[] bmsg = Config.Encodinger.GetBytes ( smsg );
         sendMsg ( bmsg );
     }
-    private void sendMsg(byte[] bmsg)
+    private void sendMsg ( byte[] bmsg )
     {
         try
         {
@@ -82,7 +83,7 @@ public class Client
         }
 
     }
-    public  void onTimer ( object sender, ElapsedEventArgs e )
+    private void onTimer(object sender, ElapsedEventArgs e)
     {
         Int32 t = Environment.TickCount;
         if ( mHeartTime > 0 && Math.Abs ( t - mHeartTime ) >= Config.HEART_BEAT_LIMIT )
@@ -95,7 +96,7 @@ public class Client
         sendMsg ( pkg );
         //sendMsg ( Config.HEART_BEAT );
     }
-    public void onHeartBeat()
+    private void onHeartBeat()
     {
         mHeartTime = Environment.TickCount;
     }
@@ -140,28 +141,28 @@ public class Client
         this.mOnExpection ( "本地连接断开！" );
     }
 
-    private void processPKG(PKG pkg)
+    private void processPKG ( PKG pkg )
     {
-        switch (pkg.mType)
+        switch ( pkg.mType )
         {
-            case PKGID.HeartBeat:
-                {
-                    onHeartBeat();
-                }
-                break;
-            case PKGID.ConnectSuccessed:
-                {
-                    mOnConnect();
-                }
-                break;
-            default:
-                {
-                    mOnReceiveMessage(pkg);
-                }
-                break;
+        case PKGID.HeartBeat:
+        {
+            onHeartBeat();
+        }
+        break;
+        case PKGID.ConnectSuccessed:
+        {
+            mOnConnect();
+        }
+        break;
+        default:
+        {
+            mOnReceiveMessage ( pkg );
+        }
+        break;
         }
     }
-    public void onRecv ( IAsyncResult ar )
+    private void onRecv ( IAsyncResult ar )
     {
         try
         {
@@ -183,8 +184,11 @@ public class Client
             Array.Copy ( mBuffer, bmsg, length );
             if ( length > 0 )
             {
-                PKG pkg = PKG.parser(bmsg);
-                processPKG(pkg);
+                PKGResult res = PKG.parser ( mTail, bmsg );
+                List<PKG> pkgList = res.mPKGList;
+                mTail = res.mTail;
+                foreach ( PKG pkg in pkgList )
+                    processPKG ( pkg );
             }
             else
             {
