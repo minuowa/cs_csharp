@@ -117,7 +117,7 @@ public partial class Form_Client : Form
         }
         else
         {
-            if ( pkg.mType == PKGID.NormalOutPut )
+            if ( ( PKGID ) pkg.mType == PKGID.NormalOutPut )
             {
                 string smsg = DateTime.Now.ToString() + " : " +  pkg.getDataString();
                 mRecvMsgs = textBox_recv.Text + smsg + "\r\n";
@@ -168,7 +168,10 @@ public partial class Form_Client : Form
 
     private void config()
     {
-        foreach ( KeyValuePair<string, string>  cmd in mCmds )
+        this.comboBox_cmd.IntegralHeight = true;
+        this.comboBox_cmd.ItemHeight = 30;
+
+        foreach (KeyValuePair<string, string> cmd in mCmds)
         {
             comboBox_cmd.Items.Add ( cmd.Key );
         }

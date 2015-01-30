@@ -3,9 +3,13 @@
 <config>
 	<client ip="192.168.1.23" port="10000"/>
 	<cmd>
-		<item type="更新网页版" content="Build_Web.bat"/>
-		<item type="只更新资源" content="Build_Res.bat"/>
-		<item type="只更新代码" content="Build_Code.bat"/>
-		<item type="打包所有" content="Build_All.bat"/>
+		<item type="主干：更新网页版" content="Build_Web.bat"/>
+		<item type="主干：只更新资源" content="Build_Res.bat"/>
+		<item type="主干：只更新代码" content="Build_Code.bat"/>
+		<item type="主干：打包所有" content="Build_All.bat"/>
+		<item type="台湾：更新网页版" content="Build_Web_TW.bat"/>
+		<item type="台湾：只更新资源" content="Build_Res_TW.bat"/>
+		<item type="台湾：只更新代码" content="Build_Code_TW.bat"/>
+		<item type="台湾：打包所有" content="Build_All_TW.bat"/>
 	</cmd>
 </config>

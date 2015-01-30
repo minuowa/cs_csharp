@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NNOldManNet
 {
-    public enum PKGID
+    public enum PKGID:int
     {
         None,
         ConnectSuccessed,

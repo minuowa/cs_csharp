@@ -12,6 +12,7 @@ using System.Configuration;
 using NNOldManNet;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Security.Principal;
 namespace StriveEngine.SimpleDemoServer
 {
 /*
@@ -23,8 +24,19 @@ public partial class Form_Server : Form
 {
     private Server mNet;
     private List<Process> mProcessPool;
+    public static bool IsAdministrator()
+    {
+        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new WindowsPrincipal ( identity );
+        return principal.IsInRole ( WindowsBuiltInRole.Administrator );
+    }
     public Form_Server()
     {
+        bool isAs = IsAdministrator();
+        if ( isAs )
+        {
+            isAs = true;
+        }
         InitializeComponent();
         InitData();
     }
@@ -106,7 +118,7 @@ public partial class Form_Server : Form
     }
     private void processPKG ( Socket client, PKG pkg )
     {
-        switch ( pkg.mType )
+        switch ( ( PKGID ) pkg.mType )
         {
         case PKGID.StartWork:
         {
@@ -123,41 +135,33 @@ public partial class Form_Server : Form
     private void onStartWorkMsg ( Socket client, PKG pkg )
     {
 
-        if (this.listView1.InvokeRequired)
+        if ( this.listView1.InvokeRequired )
         {
             Server.ReceiveMsg myCompare = new Server.ReceiveMsg ( onStartWorkMsg ); //代理实例化
             this.listView1.Invoke ( myCompare, client, pkg );
         }
         else
         {
-            doWork(client, pkg.getDataString());
-            ListViewItem item = new ListViewItem(new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), pkg.getDataString() });
+            doWork ( client, pkg.getDataString() );
+            ListViewItem item = new ListViewItem ( new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), pkg.getDataString() } );
             this.listView1.Items.Insert ( 0, item );
         }
     }
+
     private void onStopWorkMsg ( Socket client, PKG pkg )
     {
-        PKG retpkg = new PKG ( PKGID.NormalOutPut );
-        string sout = null;
         foreach ( Process p in mProcessPool )
         {
             if ( p.StartInfo.FileName == pkg.getDataString() )
             {
                 if ( !p.HasExited )
                 {
-                    p.Refresh();
-                    p.Kill();
+                    ProcessTreeNode root = new ProcessTreeNode ( p );
+                    root.Kill();
+                    return;
                 }
-                sout = string.Format ( "{0} Exit!", p.StartInfo.FileName );
-                retpkg.setData ( sout );
-                this.mNet.sendMsg ( client, retpkg );
-                mProcessPool.Remove ( p );
-                return;
             }
         }
-        sout = string.Format ( "{0} Exit!", pkg.getDataString() );
-        retpkg.setData ( sout );
-        this.mNet.sendMsg ( client, retpkg );
     }
     public void onDataReceivedEventHandler ( object sender, DataReceivedEventArgs e )
     {
@@ -198,19 +202,14 @@ public partial class Form_Server : Form
             process.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值
             process.StartInfo.RedirectStandardOutput = true;  //重定向输出流
             process.StartInfo.RedirectStandardError = true;  //重定向错误流
+            process.StartInfo.Verb = "runas";  //
             process.EnableRaisingEvents = true;
-
             process.OutputDataReceived += onDataReceivedEventHandler;
             process.ErrorDataReceived += onDataReceivedEventHandler;
             process.Exited += process_Exited;
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-
-            var moduleList = process.Modules;
-            foreach ( System.Diagnostics.ProcessModule module in moduleList )
-            Console.WriteLine ( string.Format ( "{0}\n  URL:{1}\n  Version:{2}",
-                                                module.ModuleName, module.FileName, module.FileVersionInfo.FileVersion ) );
 
             mProcessPool.Add ( process );
         }
@@ -234,12 +233,19 @@ public partial class Form_Server : Form
         Process process = ( Process ) sender;
         if ( mProcessPool.Contains ( process ) )
         {
-            //Socket client = mProcessPool[process];
-            string msg = string.Format ( "{0} :Exit code ( {1} )", process.StartInfo.FileName
-                                         , process.ExitCode
-                                       );
-            //sendMsgToClient ( client, msg );
-            mNet.broadcast ( new PKG ( PKGID.NormalOutPut, msg ) );
+            try
+            {
+                //Socket client = mProcessPool[process];
+                string msg = string.Format ( "{0} :Exit code ( {1} )", process.StartInfo.FileName
+                                             , process.ExitCode
+                                           );
+                //sendMsgToClient ( client, msg );
+                mNet.broadcast ( new PKG ( PKGID.NormalOutPut, msg ) );
+            }
+            catch ( System.Exception ex )
+            {
+                showInfo ( ex.Message );
+            }
             mProcessPool.Remove ( process );
         }
     }
@@ -289,6 +295,7 @@ public partial class Form_Server : Form
 
     private void Form1_Load ( object sender, EventArgs e )
     {
+        this.comboBox1.ItemHeight = 25;
     }
 
     private void Form1_FormClosed ( object sender, FormClosedEventArgs e )
@@ -304,7 +311,8 @@ public partial class Form_Server : Form
                     p.OutputDataReceived -= onDataReceivedEventHandler;
                     p.ErrorDataReceived -= onDataReceivedEventHandler;
                     p.Exited -= process_Exited;
-                    p.Kill();
+                    ProcessTreeNode n = new ProcessTreeNode ( p );
+                    n.Kill();
                 }
             }
         }

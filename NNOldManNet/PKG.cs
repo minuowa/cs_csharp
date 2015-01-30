@@ -15,23 +15,23 @@ public class PKG
 {
     //len+pkgid
     private static int mHeaderLength = 8;
-    public PKGID mType = PKGID.None;
+    public int mType = (int)PKGID.None;
     private int mLength = 8;
     private byte[] mDatas = null;
     public PKG ( PKGID id )
     {
-        mType = id;
+        mType = (int)id;
     }
     public PKG ( PKGID id, string data )
     {
-        mType = id;
+        mType = (int)id;
         mDatas = Config.Encodinger.GetBytes ( data );
         calLen();
     }
     public PKG ( PKGID id, byte[] data )
     {
-        mType = id;
-        if ( data != null )
+        mType = (int)id;
+        if (data != null)
         {
             mDatas = new byte[data.Length];
             Array.Copy ( data, mDatas, data.Length );
@@ -61,7 +61,7 @@ public class PKG
         while ( len > 0 )
         {
             PKG pkg = new PKG();
-            pkg.mType = ( PKGID ) System.BitConverter.ToInt32 ( buffer, startIndex );
+            pkg.mType =  System.BitConverter.ToInt32 ( buffer, startIndex );
             pkg.mLength = System.BitConverter.ToInt32 ( buffer, startIndex + 4 );
             if ( len < pkg.mLength )
             {
@@ -114,7 +114,6 @@ public class PKG
         Array.Copy ( System.BitConverter.GetBytes ( mLength ), 0, bytes, 4, 4 );
         if ( mDatas != null )
             Array.Copy ( mDatas, 0, bytes, mHeaderLength, mDatas.Length );
-        Console.WriteLine ( bytes );
         return bytes;
     }
 }

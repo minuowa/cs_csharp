@@ -14,7 +14,6 @@ public delegate void DebugInfo ( string msg );
 public class HeartBeatInfo
 {
     public int mHeartTime = 0;
-    public TcpClient mClient = null;
 };
 public class Server
 {
@@ -55,7 +54,7 @@ public class Server
             return false;
         return mClientPools.ContainsKey ( client );
     }
-    private void onTimer(object sender, ElapsedEventArgs e)
+    private void onTimer ( object sender, ElapsedEventArgs e )
     {
         Int32 t = Environment.TickCount;
         Dictionary<Socket, HeartBeatInfo> newPool = new Dictionary<Socket, HeartBeatInfo>();
@@ -121,7 +120,7 @@ public class Server
     }
     private void processPKG ( Socket socket, PKG pkg )
     {
-        switch ( pkg.mType )
+        switch ( ( PKGID ) pkg.mType )
         {
         case PKGID.HeartBeat:
         {
@@ -135,30 +134,40 @@ public class Server
         break;
         }
     }
-    private void onRecv(IAsyncResult ar)
+    private void onRecv ( IAsyncResult ar )
     {
         Socket socket = ( Socket ) ar.AsyncState;
         int length = 0;
         try
         {
             length = socket.EndReceive ( ar );
-            if ( length > 0 )
-            {
-                byte[] bmsg = new byte[length];
-                Array.Copy ( mBuffer, bmsg, length );
-                PKGResult res = PKG.parser(mTail, bmsg);
-                List<PKG> pkgList = res.mPKGList;
-                mTail = res.mTail;
-                foreach (PKG pkg in pkgList)
-                    processPKG(socket,pkg);
-            }
-            socket.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, socket );
 
         }
-        catch ( System.Exception  )
+        catch ( System.Exception ex )
         {
             mOnConnected ( socket, false );
             mClientPools.Remove ( socket );
+            return;
+        }
+
+        if ( length > 0 )
+        {
+            byte[] bmsg = new byte[length];
+            Array.Copy ( mBuffer, bmsg, length );
+            PKGResult res = PKG.parser ( mTail, bmsg );
+            List<PKG> pkgList = res.mPKGList;
+            mTail = res.mTail;
+            foreach ( PKG pkg in pkgList )
+            processPKG ( socket, pkg );
+        }
+
+        try
+        {
+            socket.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, socket );
+        }
+        catch ( System.Exception ex )
+        {
+            mOnLogInfo( ex.Message );
         }
     }
 
@@ -189,9 +198,7 @@ public class Server
             }
             client.BeginReceive ( mBuffer, 0, mBuffer.Length, SocketFlags.None, onRecv, client );
             PKG pkg = new PKG ( PKGID.ConnectSuccessed );
-            pkg.setData ( Config.SUCESS );
             sendMsg ( client, pkg );
-            //sendMsg ( client,Config.SUCESS  );
         }
         if ( mListner != null )
             mListner.BeginAccept ( onAccept, mListner );

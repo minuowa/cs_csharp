@@ -21,13 +21,21 @@ public class Client
 
     public event DebugInfo mOnExpection;
 
-    //连接成功
+    /// <summary>
+    /// 连接成功
+    /// </summary>
     public event OnConnect mOnConnect;
-    //本地网络断开
+    /// <summary>
+    /// 本地网络断开
+    /// </summary>
     public event OnDisconnectLocal mOnDisconnectLocal;
-    //远程网络断开
+    /// <summary>
+    /// 远程网络断开
+    /// </summary>
     public event OnDisconnectRemote mOnDisconnectRemote;
-    //远程服务器未开启
+    /// <summary>
+    /// 远程服务器未开启
+    /// </summary>
     public event OnOutOfReach mOnOutOfReach;
 
 
@@ -44,6 +52,9 @@ public class Client
     {
         close();
     }
+    /// <summary>
+    /// 关闭网络
+    /// </summary>
     public void close()
     {
         mHeartTime = 0;
@@ -59,10 +70,18 @@ public class Client
             mTimer = null;
         }
     }
+    /// <summary>
+    /// 发送消息包
+    /// </summary>
+    /// <param name="pkg"></param>
     public void sendMsg ( PKG pkg )
     {
         sendMsg ( pkg.getBuffer() );
     }
+    /// <summary>
+    /// 发送消息包
+    /// </summary>
+    /// <param name="smsg"></param>
     private void sendMsg ( string smsg )
     {
         byte[] bmsg = Config.Encodinger.GetBytes ( smsg );
@@ -83,7 +102,7 @@ public class Client
         }
 
     }
-    private void onTimer(object sender, ElapsedEventArgs e)
+    private void onTimer ( object sender, ElapsedEventArgs e )
     {
         Int32 t = Environment.TickCount;
         if ( mHeartTime > 0 && Math.Abs ( t - mHeartTime ) >= Config.HEART_BEAT_LIMIT )
@@ -94,13 +113,17 @@ public class Client
         }
         PKG pkg = new PKG ( PKGID.HeartBeat );
         sendMsg ( pkg );
-        //sendMsg ( Config.HEART_BEAT );
     }
     private void onHeartBeat()
     {
         mHeartTime = Environment.TickCount;
     }
 
+    /// <summary>
+    /// 重连
+    /// </summary>
+    /// <param name="ipa"></param>
+    /// <param name="port"></param>
     public void reconnect ( string ipa, int port )
     {
         try
@@ -143,7 +166,7 @@ public class Client
 
     private void processPKG ( PKG pkg )
     {
-        switch ( pkg.mType )
+        switch ( ( PKGID ) pkg.mType )
         {
         case PKGID.HeartBeat:
         {
@@ -188,7 +211,7 @@ public class Client
                 List<PKG> pkgList = res.mPKGList;
                 mTail = res.mTail;
                 foreach ( PKG pkg in pkgList )
-                    processPKG ( pkg );
+                processPKG ( pkg );
             }
             else
             {
