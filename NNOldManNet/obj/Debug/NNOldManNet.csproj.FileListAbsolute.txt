@@ -4,3 +4,7 @@ D:\work\cs_csharp\resources\NNOldManNet.dll
 D:\work\cs_csharp\resources\NNOldManNet.pdb
 D:\work\cs_csharp\NNOldManNet\obj\Debug\NNOldManNet.dll
 D:\work\cs_csharp\NNOldManNet\obj\Debug\NNOldManNet.pdb
+D:\test_vs2012\cs_csharp\resources\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\resources\NNOldManNet.pdb
+D:\test_vs2012\cs_csharp\NNOldManNet\obj\Debug\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\NNOldManNet\obj\Debug\NNOldManNet.pdb

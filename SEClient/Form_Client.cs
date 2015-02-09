@@ -17,6 +17,7 @@ public partial class Form_Client : Form
     private Client mNet;
     private string mClientIP = "127.0.0.1";
     private int mPort = 10000;
+    int mSelectIndex = 0;
 
     //配置文件
     private static string mConfigFile = "config.xml";
@@ -121,7 +122,9 @@ public partial class Form_Client : Form
             {
                 string smsg = DateTime.Now.ToString() + " : " +  pkg.getDataString();
                 mRecvMsgs = textBox_recv.Text + smsg + "\r\n";
-                textBox_recv.Text = mRecvMsgs;
+                textBox_recv.AppendText ( smsg + "\r\n" );
+                //mSelectIndex = textBox_recv.SelectionStart;
+                //textBox_recv.Text = mRecvMsgs;
             }
         }
     }
@@ -161,9 +164,10 @@ public partial class Form_Client : Form
     {
         if ( checkBox_autoScrollToButtom.Checked )
         {
-            this.textBox_recv.Select ( textBox_recv.Text.Length, 0 );
-            textBox_recv.ScrollToCaret();
+            mSelectIndex = textBox_recv.Text.Length;
+            this.textBox_recv.Select(mSelectIndex, 0);
         }
+        //textBox_recv.ScrollToCaret();
     }
 
     private void config()
@@ -171,7 +175,7 @@ public partial class Form_Client : Form
         this.comboBox_cmd.IntegralHeight = true;
         this.comboBox_cmd.ItemHeight = 30;
 
-        foreach (KeyValuePair<string, string> cmd in mCmds)
+        foreach ( KeyValuePair<string, string> cmd in mCmds )
         {
             comboBox_cmd.Items.Add ( cmd.Key );
         }

@@ -132,7 +132,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox_recv.Location = new System.Drawing.Point(6, 43);
-            this.textBox_recv.MaxLength = 65535;
+            this.textBox_recv.MaxLength = int.MaxValue;
             this.textBox_recv.Multiline = true;
             this.textBox_recv.Name = "textBox_recv";
             this.textBox_recv.ScrollBars = System.Windows.Forms.ScrollBars.Both;

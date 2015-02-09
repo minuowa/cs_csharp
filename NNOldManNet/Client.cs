@@ -69,6 +69,10 @@ public class Client
             mTimer.Dispose();
             mTimer = null;
         }
+        if ( mTail != null )
+        {
+            mTail = null;
+        }
     }
     /// <summary>
     /// 发送消息包
