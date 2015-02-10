@@ -18,7 +18,6 @@ public class Config
     /// <summary>
     /// 心跳误差允许的最大值
     /// </summary>
-    public const int HEART_BEAT_PERIOD_FLOAT = 20000;
-    public  const int HEART_BEAT_LIMIT = HEART_BEAT_PERIOD + HEART_BEAT_PERIOD_FLOAT;
+    public  const int HEART_BEAT_LIMIT = HEART_BEAT_PERIOD * 2;
 }
 }

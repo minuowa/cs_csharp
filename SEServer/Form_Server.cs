@@ -81,21 +81,19 @@ public partial class Form_Server : Form
             if ( sucess )
             {
                 this.comboBox1.Items.Add ( client.RemoteEndPoint.ToString() );
+
+                foreach ( Process p in mProcessPool )
+                {
+                    if ( !p.HasExited )
+                    {
+                        PKG pkg = new PKG ( PKGID.CurTaskAdd );
+                        pkg.setData ( p.StartInfo.FileName );
+                        mNet.broadcast ( pkg );
+                    }
+                }
             }
             else
             {
-                //foreach ( Process p in mProcessPool )
-                //{
-                //    {
-                //        p.OutputDataReceived -= onDataReceivedEventHandler;
-                //        p.ErrorDataReceived -= onDataReceivedEventHandler;
-                //        p.Exited -= process_Exited;
-                //        if ( !p.HasExited )
-                //            p.Kill();
-                //        mProcessPool.Remove ( p );
-                //        break;
-                //    }
-                //}
                 this.comboBox1.Items.Remove ( client.RemoteEndPoint.ToString() );
                 string msg = string.Format ( "{0} 下线", client.RemoteEndPoint.ToString() );
                 showInfo ( msg );
@@ -212,6 +210,10 @@ public partial class Form_Server : Form
             process.BeginErrorReadLine();
 
             mProcessPool.Add ( process );
+
+            PKG pkg = new PKG ( PKGID.CurTaskAdd );
+            pkg.setData ( msg );
+            mNet.broadcast ( pkg );
         }
         catch ( System.Exception ex )
         {
@@ -239,7 +241,11 @@ public partial class Form_Server : Form
                 string msg = string.Format ( "{0} :Exit code ( {1} )", process.StartInfo.FileName
                                              , process.ExitCode
                                            );
-                //sendMsgToClient ( client, msg );
+
+                PKG pkg = new PKG ( PKGID.CurTaskDelete );
+                pkg.setData ( process.StartInfo.FileName );
+                mNet.broadcast ( pkg );
+
                 mNet.broadcast ( new PKG ( PKGID.NormalOutPut, msg ) );
             }
             catch ( System.Exception ex )
@@ -247,6 +253,8 @@ public partial class Form_Server : Form
                 showInfo ( ex.Message );
             }
             mProcessPool.Remove ( process );
+
+
         }
     }
     private void ShowConnectionCount ( int clientCount )
@@ -302,19 +310,26 @@ public partial class Form_Server : Form
     {
         if ( mNet != null )
         {
-            mNet.close();
-            mNet = null;
             foreach ( Process p in mProcessPool )
             {
                 if ( !p.HasExited )
                 {
+
                     p.OutputDataReceived -= onDataReceivedEventHandler;
                     p.ErrorDataReceived -= onDataReceivedEventHandler;
                     p.Exited -= process_Exited;
+
+                    PKG pkg = new PKG ( PKGID.CurTaskDelete );
+                    pkg.setData ( p.StartInfo.FileName );
+                    mNet.broadcast ( pkg );
+
                     ProcessTreeNode n = new ProcessTreeNode ( p );
                     n.Kill();
                 }
             }
+
+            mNet.close();
+            mNet = null;
         }
     }
 }

@@ -118,13 +118,33 @@ public partial class Form_Client : Form
         }
         else
         {
-            if ( ( PKGID ) pkg.mType == PKGID.NormalOutPut )
+            switch ( ( PKGID ) pkg.mType )
+            {
+            case PKGID.NormalOutPut:
             {
                 string smsg = DateTime.Now.ToString() + " : " +  pkg.getDataString();
                 mRecvMsgs = textBox_recv.Text + smsg + "\r\n";
                 textBox_recv.AppendText ( smsg + "\r\n" );
-                //mSelectIndex = textBox_recv.SelectionStart;
-                //textBox_recv.Text = mRecvMsgs;
+            }
+            break;
+            case PKGID.CurTaskAdd:
+            {
+                string task = pkg.getDataString();
+                foreach ( var v in this.comboBox_taskList.Items )
+                {
+                    if ( v.ToString() == task )
+                        return;
+                }
+                comboBox_taskList.Items.Add ( task );
+                comboBox_taskList.Text = task;
+            }
+            break;
+            case PKGID.CurTaskDelete:
+            {
+                string task = pkg.getDataString();
+                comboBox_taskList.Items.Remove ( task );
+            }
+            break;
             }
         }
     }
@@ -165,7 +185,7 @@ public partial class Form_Client : Form
         if ( checkBox_autoScrollToButtom.Checked )
         {
             mSelectIndex = textBox_recv.Text.Length;
-            this.textBox_recv.Select(mSelectIndex, 0);
+            this.textBox_recv.Select ( mSelectIndex, 0 );
         }
         //textBox_recv.ScrollToCaret();
     }
@@ -196,6 +216,11 @@ public partial class Form_Client : Form
             string content = mCmds[type];
             this.mNet.sendMsg ( new PKG ( PKGID.StopWork, content ) );
         }
+    }
+
+    private void label2_Click ( object sender, EventArgs e )
+    {
+
     }
 
 }

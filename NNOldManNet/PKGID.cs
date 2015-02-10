@@ -13,5 +13,7 @@ namespace NNOldManNet
         StartWork,
         StopWork,
         NormalOutPut,
+        CurTaskAdd,
+        CurTaskDelete,
     }
 }
