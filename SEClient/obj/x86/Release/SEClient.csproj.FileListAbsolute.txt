@@ -1,0 +1,12 @@
+D:\test_vs2012\cs_csharp\SEClient\bin\Release\SEClient.exe
+D:\test_vs2012\cs_csharp\SEClient\bin\Release\SEClient.pdb
+D:\test_vs2012\cs_csharp\SEClient\bin\Release\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\SEClient\bin\Release\NNOldManNet.pdb
+D:\test_vs2012\cs_csharp\SEClient\obj\x86\Release\SEClient.csprojResolveAssemblyReference.cache
+D:\test_vs2012\cs_csharp\SEClient\obj\x86\Release\StriveEngine.SimpleDemoClient.Form_Client.resources
+D:\test_vs2012\cs_csharp\SEClient\obj\x86\Release\SEClient.Properties.Resources.resources
+D:\test_vs2012\cs_csharp\SEClient\obj\x86\Release\SEClient.csproj.GenerateResource.Cache
+D:\test_vs2012\cs_csharp\SEClient\obj\x86\Release\SEClient.exe
+D:\test_vs2012\cs_csharp\SEClient\obj\x86\Release\SEClient.pdb
+D:\test_vs2012\cs_csharp\Release\SEClient.exe
+D:\test_vs2012\cs_csharp\Release\SEClient.pdb

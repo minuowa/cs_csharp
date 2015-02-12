@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <config>
-	<client ip="192.168.1.45" port="10000"/>
+	<client ip="192.168.1.23" port="10000"/>
 	<cmd>
-	<item type="测试svn" content="test.py"/>
 		<item type="主干：更新网页版" content="Build_Web.bat"/>
 		<item type="主干：只更新资源" content="Build_Res.bat"/>
 		<item type="主干：只更新代码" content="Build_Code.bat"/>

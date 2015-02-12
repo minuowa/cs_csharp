@@ -47,3 +47,5 @@ Temporary Items
 *.sdf
 *.cache
 *.orig
+*.pdb
+*.rar

@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using StriveEngine;
 using System.Net;
 using System.Diagnostics;
 using System.Configuration;
@@ -13,106 +12,67 @@ using NNOldManNet;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Security.Principal;
-namespace StriveEngine.SimpleDemoServer
+namespace SE
 {
-/*
- * 更多实用组件请访问 www.oraycn.com 或 QQ：168757008。
- *
- * ESFramework 强悍的通信框架、P2P框架、群集平台。OMCS 简单易用的网络语音视频框架。MFile 语音视频录制组件。StriveEngine 轻量级的通信引擎。
- */
-public partial class Form_Server : Form
+public class ServerEntity
 {
     private Server mNet;
     private List<Process> mProcessPool;
-    public static bool IsAdministrator()
+    public ServerEntity()
     {
-        WindowsIdentity identity = WindowsIdentity.GetCurrent();
-        WindowsPrincipal principal = new WindowsPrincipal ( identity );
-        return principal.IsInRole ( WindowsBuiltInRole.Administrator );
+        mProcessPool = new List<Process>();
     }
-    public Form_Server()
+    public void close()
     {
-        bool isAs = IsAdministrator();
-        if ( isAs )
-        {
-            isAs = true;
-        }
-        InitializeComponent();
-        InitData();
+        closeAllProcess();
+        closeNet();
     }
-    ~Form_Server()
+    public void restart ( int port )
     {
-        mNet.close();
-    }
-    private void configNet()
-    {
-        if ( mNet == null )
-            mNet = new Server ( int.Parse ( this.textBox_port.Text ) );
+        close();
+        mNet = new Server ( port );
         mNet.mOnLogInfo += showInfo;
         mNet.mOnReceiveMsg += processPKG;
         mNet.mOnConnected += onConnected;
-        bool res = mNet.restart();
-
-        this.button1.Enabled = !res;
-        this.textBox_port.ReadOnly = true;
-        this.button2.Enabled = res;
+        mNet.restart();
     }
-    private void button1_Click ( object sender, EventArgs e )
+    void calCount()
     {
-        try
-        {
-            configNet();
-        }
-        catch ( Exception ee )
-        {
-            MessageBox.Show ( ee.Message );
-        }
+        string msg = string.Format ( "OnLine Count:{0}", mNet.countOfOnLine() );
+        showInfo ( msg );
     }
-
     void onConnected ( Socket client, bool sucess )
     {
-        if ( this.toolStrip1.InvokeRequired )
+        if ( sucess )
         {
-            Server.OnConnected myCompare = new Server.OnConnected ( onConnected ); //代理实例化
-            this.toolStrip1.Invoke ( myCompare, client, sucess );
+            string msg = string.Format ( "{0} Up Line!", client.RemoteEndPoint.ToString() );
+            showInfo ( msg );
+            broadcastWork();
         }
         else
         {
-            if ( sucess )
-            {
-                this.comboBox1.Items.Add ( client.RemoteEndPoint.ToString() );
+            string msg = string.Format ( "{0} Down Line!", client.RemoteEndPoint.ToString() );
+            showInfo ( msg );
+            broadcastWork();
+        }
+        calCount();
+    }
 
-                foreach ( Process p in mProcessPool )
-                {
-                    if ( !p.HasExited )
-                    {
-                        PKG pkg = new PKG ( PKGID.CurTaskAdd );
-                        pkg.setData ( p.StartInfo.FileName );
-                        mNet.broadcast ( pkg );
-                    }
-                }
-            }
-            else
+    void broadcastWork()
+    {
+        foreach ( Process p in mProcessPool )
+        {
+            if ( !p.HasExited )
             {
-                this.comboBox1.Items.Remove ( client.RemoteEndPoint.ToString() );
-                string msg = string.Format ( "{0} 下线", client.RemoteEndPoint.ToString() );
-                showInfo ( msg );
+                PKG pkg = new PKG ( PKGID.CurTaskAdd );
+                pkg.setData ( p.StartInfo.FileName );
+                mNet.broadcast ( pkg );
             }
         }
     }
-
-
     private void showInfo ( string msg )
     {
-        if ( this.toolStrip1.InvokeRequired )
-        {
-            DebugInfo myCompare = new DebugInfo ( showInfo ); //代理实例化
-            this.toolStrip1.Invoke ( myCompare, msg );
-        }
-        else
-        {
-            this.toolStripLabel_event.Text = msg;
-        }
+        Console.WriteLine ( msg );
     }
     private void processPKG ( Socket client, PKG pkg )
     {
@@ -132,18 +92,7 @@ public partial class Form_Server : Form
     }
     private void onStartWorkMsg ( Socket client, PKG pkg )
     {
-
-        if ( this.listView1.InvokeRequired )
-        {
-            Server.ReceiveMsg myCompare = new Server.ReceiveMsg ( onStartWorkMsg ); //代理实例化
-            this.listView1.Invoke ( myCompare, client, pkg );
-        }
-        else
-        {
-            doWork ( client, pkg.getDataString() );
-            ListViewItem item = new ListViewItem ( new string[] { DateTime.Now.ToString(), client.RemoteEndPoint.ToString(), pkg.getDataString() } );
-            this.listView1.Items.Insert ( 0, item );
-        }
+        doWork ( client, pkg.getDataString() );
     }
 
     private void onStopWorkMsg ( Socket client, PKG pkg )
@@ -167,15 +116,6 @@ public partial class Form_Server : Form
         {
             mNet.broadcast ( new PKG ( PKGID.NormalOutPut, e.Data ) );
         }
-        //Process process = ( Process ) sender;
-        //if ( mWorkProcess.ContainsKey ( process ) )
-        //{
-        //    Socket client = mWorkProcess[process];
-        //    if ( this.mNet.isClientOnline ( client ) && e.Data != null )
-        //    {
-        //        this.mNet.sendMsg ( client, e.Data );
-        //    }
-        //}
     }
     private void doWork ( Socket client, string msg )
     {
@@ -204,7 +144,7 @@ public partial class Form_Server : Form
             process.EnableRaisingEvents = true;
             process.OutputDataReceived += onDataReceivedEventHandler;
             process.ErrorDataReceived += onDataReceivedEventHandler;
-            process.Exited += process_Exited;
+            process.Exited += onProcessExited;
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
@@ -230,7 +170,7 @@ public partial class Form_Server : Form
             this.mNet.sendMsg ( client, pkg );
         }
     }
-    void process_Exited ( object sender, EventArgs e )
+    void onProcessExited ( object sender, EventArgs e )
     {
         Process process = ( Process ) sender;
         if ( mProcessPool.Contains ( process ) )
@@ -253,60 +193,18 @@ public partial class Form_Server : Form
                 showInfo ( ex.Message );
             }
             mProcessPool.Remove ( process );
-
-
         }
     }
-    private void ShowConnectionCount ( int clientCount )
+
+    private void closeNet()
     {
-        this.toolStripLabel_clientCount.Text = "在线数量： " + clientCount.ToString();
-    }
-
-
-
-    private void button2_Click ( object sender, EventArgs e )
-    {
-        try
+        if ( mNet != null )
         {
-            Socket client = mNet.getClientByIpAddress ( this.comboBox1.SelectedItem.ToString() );
-            if ( client == null )
-            {
-                MessageBox.Show ( "没有选中任何在线客户端！" );
-                return;
-            }
-
-            if ( !this.mNet.isClientOnline ( client ) )
-            {
-                MessageBox.Show ( "目标客户端不在线！" );
-                return;
-            }
-            PKG pkg = new PKG ( PKGID.NormalOutPut );
-            pkg.setData ( this.textBox_msg.Text );
-            this.mNet.sendMsg ( client, pkg );
-        }
-        catch ( Exception ee )
-        {
-            MessageBox.Show ( ee.Message );
+            mNet.close();
+            mNet = null;
         }
     }
-
-    private void button3_Click ( object sender, EventArgs e )
-    {
-        //doWork(TODO,"1234");
-        return;
-    }
-
-    private void InitData()
-    {
-        mProcessPool = new List<Process>();
-    }
-
-    private void Form1_Load ( object sender, EventArgs e )
-    {
-        this.comboBox1.ItemHeight = 25;
-    }
-
-    private void Form1_FormClosed ( object sender, FormClosedEventArgs e )
+    private void closeAllProcess()
     {
         if ( mNet != null )
         {
@@ -317,7 +215,7 @@ public partial class Form_Server : Form
 
                     p.OutputDataReceived -= onDataReceivedEventHandler;
                     p.ErrorDataReceived -= onDataReceivedEventHandler;
-                    p.Exited -= process_Exited;
+                    p.Exited -= onProcessExited;
 
                     PKG pkg = new PKG ( PKGID.CurTaskDelete );
                     pkg.setData ( p.StartInfo.FileName );
@@ -327,9 +225,6 @@ public partial class Form_Server : Form
                     n.Kill();
                 }
             }
-
-            mNet.close();
-            mNet = null;
         }
     }
 }

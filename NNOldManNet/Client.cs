@@ -211,7 +211,7 @@ public class Client
             Array.Copy ( mBuffer, bmsg, length );
             if ( length > 0 )
             {
-                PKGResult res = PKG.parser ( mTail, bmsg );
+                PKGResult res = PKG.parser ( mTail, ref bmsg );
                 List<PKG> pkgList = res.mPKGList;
                 mTail = res.mTail;
                 foreach ( PKG pkg in pkgList )

@@ -2,23 +2,29 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-/*
- * 本demo采用的是StriveEngine的免费版本，若想获取StriveEngine其它版本，请联系 www.oraycn.com 或 QQ：168757008。
- * 
- */
-namespace StriveEngine.SimpleDemoServer
+namespace SE
 {
-    static class Program
+static class Program
+{
+    static void Main ( string[] args )
     {
-        /// <summary>
-        /// 应用程序的主入口点。
-        /// </summary>
-        [STAThread]
-        static void Main()
+        ServerEntity server = new ServerEntity();
+        try
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form_Server());
+            server.restart ( 10000 );
+            do
+            {
+                string cmd = Console.ReadLine();
+                if ( cmd == "exit" )
+                    break;
+            }
+            while ( true );
+            server.close();
+        }
+        catch ( Exception ee )
+        {
+            MessageBox.Show ( ee.Message );
         }
     }
+}
 }

@@ -28,6 +28,7 @@ public class Server
 
     private Socket mListner;
     private int mPort = 10000;
+    public int mClientLimit = 2000;
     static byte[] mBuffer = new byte[8192];
     static byte[] mTail = null;
 
@@ -100,12 +101,11 @@ public class Server
             {
                 mClientPools = new Dictionary<Socket, HeartBeatInfo>();
                 mListner = new Socket ( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-                //mListner.Bind(new IPEndPoint(IPAddress.Parse(mIP), mPort));
                 mListner.Bind ( new IPEndPoint ( IPAddress.Any, mPort ) );
-                mListner.Listen ( 2000 );
-                mListner.BeginAccept ( onAccept, mListner );
+                mListner.Listen ( mClientLimit );
                 mTimer = new System.Timers.Timer ( Config.HEART_BEAT_PERIOD );
                 mTimer.Elapsed += new ElapsedEventHandler ( onTimer );
+                mListner.BeginAccept ( onAccept, mListner );
                 mTimer.Start();
                 mOnLogInfo ( "Start Success!" );
             }
@@ -141,12 +141,11 @@ public class Server
         try
         {
             length = socket.EndReceive ( ar );
-
         }
         catch ( System.Exception ex )
         {
-            mOnConnected ( socket, false );
             mClientPools.Remove ( socket );
+            mOnConnected ( socket, false );
             return;
         }
 
@@ -154,7 +153,7 @@ public class Server
         {
             byte[] bmsg = new byte[length];
             Array.Copy ( mBuffer, bmsg, length );
-            PKGResult res = PKG.parser ( mTail, bmsg );
+            PKGResult res = PKG.parser ( mTail, ref bmsg );
             List<PKG> pkgList = res.mPKGList;
             mTail = res.mTail;
             foreach ( PKG pkg in pkgList )
@@ -167,10 +166,13 @@ public class Server
         }
         catch ( System.Exception ex )
         {
-            mOnLogInfo( ex.Message );
+            mOnLogInfo ( ex.Message );
         }
     }
-
+    public int countOfOnLine()
+    {
+        return mClientPools.Count;
+    }
     void onAccept ( IAsyncResult ar )
     {
         if ( mListner == null )

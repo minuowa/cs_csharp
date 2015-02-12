@@ -1,0 +1,8 @@
+D:\test_vs2012\cs_csharp\NNOldManNet\bin\Release\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\NNOldManNet\bin\Release\NNOldManNet.pdb
+D:\test_vs2012\cs_csharp\Resources\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\Resources\NNOldManNet.pdb
+D:\test_vs2012\cs_csharp\NNOldManNet\obj\Release\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\NNOldManNet\obj\Release\NNOldManNet.pdb
+D:\test_vs2012\cs_csharp\Release\NNOldManNet.dll
+D:\test_vs2012\cs_csharp\Release\NNOldManNet.pdb

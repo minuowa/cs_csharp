@@ -15,23 +15,23 @@ public class PKG
 {
     //len+pkgid
     private static int mHeaderLength = 8;
-    public int mType = (int)PKGID.None;
+    public int mType = ( int ) PKGID.None;
     private int mLength = 8;
     private byte[] mDatas = null;
     public PKG ( PKGID id )
     {
-        mType = (int)id;
+        mType = ( int ) id;
     }
     public PKG ( PKGID id, string data )
     {
-        mType = (int)id;
+        mType = ( int ) id;
         mDatas = Config.Encodinger.GetBytes ( data );
         calLen();
     }
     public PKG ( PKGID id, byte[] data )
     {
-        mType = (int)id;
-        if (data != null)
+        mType = ( int ) id;
+        if ( data != null )
         {
             mDatas = new byte[data.Length];
             Array.Copy ( data, mDatas, data.Length );
@@ -42,7 +42,7 @@ public class PKG
     {
     }
     //解决粘包问题
-    public static PKGResult parser ( byte[] tail, byte[] bufferRaw )
+    public static PKGResult parser(byte[] tail, ref byte[] bufferRaw)
     {
         byte[] buffer = null;
         if ( tail == null )
@@ -58,11 +58,19 @@ public class PKG
         PKGResult res = new PKGResult();
         int startIndex = 0;
         int len = buffer.Length;
-        while ( len > 0 )
+        while ( len >= mHeaderLength )
         {
             PKG pkg = new PKG();
-            pkg.mType =  System.BitConverter.ToInt32 ( buffer, startIndex );
-            pkg.mLength = System.BitConverter.ToInt32 ( buffer, startIndex + 4 );
+            try
+            {
+                pkg.mType = System.BitConverter.ToInt32 ( buffer, startIndex );
+                pkg.mLength = System.BitConverter.ToInt32 ( buffer, startIndex + 4 );
+            }
+            catch ( System.Exception ex )
+            {
+                Console.WriteLine ( ex.Message );
+            }
+
             if ( len < pkg.mLength )
             {
                 res.mTail = new byte[len];

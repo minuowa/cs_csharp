@@ -34,27 +34,34 @@ public partial class Form_Client : Form
     public void loadConfig()
     {
         XmlDocument doc = new XmlDocument();
-        doc.Load ( mConfigFile );
-
-        XmlElement root = null;
-        root = doc.DocumentElement;
-        if ( root == null )
-            return;
-
-        XmlNodeList listNodes = null;
-        listNodes = root.SelectNodes ( "/config/client" );
-        if ( listNodes != null )
+        try
         {
-            XmlNode ele1 = listNodes[0];
-            mClientIP = ele1.Attributes["ip"].Value;
-            mPort = int.Parse ( ele1.Attributes["port"].Value );
+            doc.Load ( mConfigFile );
+
+            XmlElement root = null;
+            root = doc.DocumentElement;
+            if ( root == null )
+                return;
+
+            XmlNodeList listNodes = null;
+            listNodes = root.SelectNodes ( "/config/client" );
+            if ( listNodes != null )
+            {
+                XmlNode ele1 = listNodes[0];
+                mClientIP = ele1.Attributes["ip"].Value;
+                mPort = int.Parse ( ele1.Attributes["port"].Value );
+            }
+            listNodes = root.SelectNodes ( "/config/cmd/item" );
+
+            foreach ( XmlNode node in listNodes )
+            {
+                string cmd = node.Attributes["type"].Value;
+                mCmds.Add ( cmd, node.Attributes["content"].Value );
+            }
         }
-        listNodes = root.SelectNodes ( "/config/cmd/item" );
-
-        foreach ( XmlNode node in listNodes )
+        catch ( System.Exception ex )
         {
-            string cmd = node.Attributes["type"].Value;
-            mCmds.Add ( cmd, node.Attributes["content"].Value );
+            MessageBox.Show ( ex.Message );
         }
     }
     private void reContect()
@@ -199,7 +206,8 @@ public partial class Form_Client : Form
         {
             comboBox_cmd.Items.Add ( cmd.Key );
         }
-        comboBox_cmd.SelectedIndex = 0;
+        if ( comboBox_cmd.Items.Count > 0 )
+            comboBox_cmd.SelectedIndex = 0;
         textBox_IP.Text = mClientIP;
         textBox_port.Text = string.Format ( "{0}", mPort );
         textBox_IP.Enabled = false;

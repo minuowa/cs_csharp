@@ -6,7 +6,6 @@ namespace NNOldManNet
 {
 public class ProcessTreeNode
 {
-
     public struct ProcessBasicInformation
     {
         public int ExitStatus;
