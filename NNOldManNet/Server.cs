@@ -67,6 +67,9 @@ public class Server
             {
                 if ( info.mHeartTime > 0 && Math.Abs ( t - info.mHeartTime ) >= Config.HEART_BEAT_LIMIT )
                 {
+                    PKG pkg = new PKG ( PKGID.NormalOutPut );
+                    pkg.setData ( "HeartBeat Stop!" );
+                    sendMsg ( client, pkg );
                     mOnConnected ( client , false );
                 }
                 else
@@ -142,7 +145,7 @@ public class Server
         {
             length = socket.EndReceive ( ar );
         }
-        catch ( System.Exception ex )
+        catch ( System.Exception /*ex*/ )
         {
             mClientPools.Remove ( socket );
             mOnConnected ( socket, false );
@@ -213,7 +216,7 @@ public class Server
         {
             client.Send ( msg );
         }
-        catch ( Exception ex )
+        catch ( Exception /*ex*/ )
         {
             //mOnConnected(client, false);
         }

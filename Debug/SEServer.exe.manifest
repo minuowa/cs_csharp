@@ -49,19 +49,19 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>4TTVPhtbgtZ97KgTdq6sMCWbp+k=</dsig:DigestValue>
+        <dsig:DigestValue>4hDoI4n1JRgMDcSiDSbfRQF4FXA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SEServer.exe" size="10752">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SEServer.exe" size="11264">
       <assemblyIdentity name="SEServer" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>Uv3zrcIljq86cZmk6LSjUM3/KPw=</dsig:DigestValue>
+        <dsig:DigestValue>lx1b3nBEgbbyK547zMPpGnP4TCg=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

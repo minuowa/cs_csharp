@@ -6,7 +6,6 @@ D:\test_vs2012\cs_csharp\SEServer\bin\Release\SEServer.pdb
 D:\test_vs2012\cs_csharp\SEServer\bin\Release\NNOldManNet.dll
 D:\test_vs2012\cs_csharp\SEServer\bin\Release\NNOldManNet.pdb
 D:\test_vs2012\cs_csharp\SEServer\obj\x86\Release\SEServer.csprojResolveAssemblyReference.cache
-D:\test_vs2012\cs_csharp\SEServer\obj\x86\Release\StriveEngine.SimpleDemoServer.Form_Server.resources
 D:\test_vs2012\cs_csharp\SEServer\obj\x86\Release\SEServer.Properties.Resources.resources
 D:\test_vs2012\cs_csharp\SEServer\obj\x86\Release\SEServer.csproj.GenerateResource.Cache
 D:\test_vs2012\cs_csharp\SEServer\obj\x86\Release\SEServer.exe.manifest

@@ -41,11 +41,9 @@ public class Client
 
     private int mHeartTime = 0;
     private System.Timers.Timer mTimer;
-
     public const UInt32 mReceiveBufferLength = 8192;
     private byte[] mBuffer = new byte[mReceiveBufferLength];
     private byte[] mTail = null;
-
     private Socket mNet;
 
     ~Client()
